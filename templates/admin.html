@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Ilúmina Med</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #013241;
+            /* Azul marinho mais profundo e moderno */
+            --primary-light: #1e293b;
+            --accent: #d97706;
+            /* Ouro mais vibrante */
+            --bg: #f3f4f6;
+            /* Cinza muito claro, padrão dashboard moderno */
+            --white: #ffffff;
+            --text: #334155;
+            /* Cinza chumbo suave */
+            --text-light: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: var(--text);
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: white;
+            padding: 20px 30px;
+            /* Mais próximo do site */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--accent);
+            /* Igual ao site */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            /* Força 4 colunas */
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card-stats {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            /* Borda lateral mais fina e elegante */
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-stats small {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+        }
+
+        .card-stats h3 {
+            margin: 5px 0 0;
+            font-size: 20px;
+            /* Reduzido de 28px */
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .scroll-section {
+            max-height: calc(100vh - 280px);
+            /* Ajusta para caber na tela sem rolar muito */
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Personalização da barra de rolagem */
+        .scroll-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scroll-section::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+
+        .scroll-section::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .section-box {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 0px;
+        }
+
+        .col-span-1 {
+            grid-column: span 1;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1rem;
+            /* Reduzido de 1.15rem */
+            margin-top: 0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            vertical-align: middle;
+            color: var(--text);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badge do Profissional Responsável */
+        .prof-badge {
+            background: #f1f5f9;
+            color: var(--text);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            /* Centraliza conteúdo e ícones */
+            margin-right: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            /* Para bordas sutis */
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-ficha {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-zap {
+            background: #25d366;
+            color: white;
+        }
+
+        .btn-baixa {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-del {
+            background: #fee2e2;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .btn-action:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-add {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .side-forms-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+            /* Sombra suave accent */
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-submit:hover {
+            filter: brightness(1.2);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            /* Mais arredondado */
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scroll-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='logo_ilumina.PNG') }}" alt="Ilúmina Med"
+                style="height: 40px; width: auto;">
+            <div style="font-weight: 700; font-size: 20px; letter-spacing: 1px; color: white;">ILÚMINA <span
+                    style="color: var(--accent);">MED</span></div>
+        </a>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span style="font-size: 12px; opacity: 0.8;">Bem-vindo, Administrador</span>
+            <a href="/logout"
+                style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 8px; color: white; text-decoration: none; font-size: 12px; font-weight: 600;">Sair
+                do Painel</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="card-stats">
+                <small>Faturamento Bruto</small>
+                <h3>R$ {{ "{:,.2f}".format(total_faturado) }}</h3>
+            </div>
+            <div class="card-stats" style="border-left-color: var(--accent);">
+                <small>Lucro Serviços Próprios</small>
+                <h3 title="Lucro 100% da Amabily/Ilúmina Med">R$ {{ "{:,.2f}".format(lucro_servicos_proprios) }}</h3>
+            </div>
+            <div class="card-stats" style="border-left-color: var(--accent);">
+                <small>Lucro Comissões Parceiros</small>
+                <h3 title="Comissões (20%) recebidas de terceiros">R$ {{ "{:,.2f}".format(lucro_comissoes_parceiros) }}
+                </h3>
+            </div>
+            <div class="card-stats" style="border-left-color: {{ cor_lucro }};">
+                <small>Lucro Líquido Real (Após Custos)</small>
+                <h3 style="color: {{ cor_lucro }};">R$ {{ "{:,.2f}".format(lucro_real) }}</h3>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="col-span-1">
+                <div class="section-box">
+                    <h2>
+                        Gestão de Pacientes
+                        <a href="/exportar_financeiro"
+                            style="color: var(--accent); font-size: 11px; text-decoration: none; background: #fcf8f0; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--accent);">⬇
+                            Exportar CSV</a>
+                    </h2>
+
+                    <form method="get"
+                        style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                        <span
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light);">Filtrar
+                            Período:</span>
+                        <input type="date" name="start_date" required value="{{ request.args.get('start_date', '') }}"
+                            style="margin:0; width: auto; padding: 8px; font-size: 12px;">
+                        <span style="font-size: 12px; color: var(--text-light);">até</span>
+                        <input type="date" name="end_date" required value="{{ request.args.get('end_date', '') }}"
+                            style="margin:0; width: auto; padding: 8px; font-size: 12px;">
+                        <button type="submit" class="btn-action"
+                            style="background: var(--primary); color: white; cursor: pointer; border: none; padding: 8px 15px;">Filtrar</button>
+                        {% if request.args.get('start_date') %}
+                        <a href="/admin" style="font-size: 12px; color: var(--danger); margin-left: 10px;">Limpar
+                            Filtro</a>
+                        {% endif %}
+                    </form>
+                    <div class="scroll-section">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable(0, 'text')" style="cursor:pointer;">PACIENTE / WHATSAPP</th>
+                                    <th onclick="sortTable(1, 'text')" style="cursor:pointer;">SERVIÇO</th>
+                                    <th onclick="sortTable(2, 'text')" style="cursor:pointer;">PROFISSIONAL</th>
+                                    <th onclick="sortTable(3, 'number')" style="cursor:pointer;">VALOR</th>
+                                    <th onclick="sortTable(4, 'text')" style="cursor:pointer;">STATUS</th>
+                                    <th style="text-align: right;">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pacientes-body">
+                                {% for item in vendas_detalhadas %}
+                                {% set v = item.venda %}
+                                <tr>
+                                    <td>
+                                        <b style="color: var(--primary); font-size: 14px;">{{ v.cliente_nome }}</b><br>
+                                        <small style="color: var(--text-light);">{{ v.whatsapp }}</small>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 12px; font-weight: 500;">{{ v.servico_nome }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="prof-badge">🩺 {{ item.profissional }}</span>
+                                    </td>
+                                    <td style="font-weight: 600;">R$ {{ "{:.2f}".format(v.valor_total) }}</td>
+                                    <td>
+                                        {% if v.avaliacao_concluida %}
+                                        <span class="status-badge"
+                                            style="background: #e6ffed; color: var(--success);">PAGO</span>
+                                        {% else %}
+                                        <span class="status-badge"
+                                            style="background: #fff4e6; color: #d97706;">PENDENTE</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap;">
+                                        <a href="/avaliacao/{{ v.token_acesso }}" target="_blank"
+                                            class="btn-action btn-ficha" title="Ver Ficha Técnica">Ficha</a>
+                                        <a href="https://api.whatsapp.com/send?phone={{ v.whatsapp }}&text=Olá {{ v.cliente_nome }}, aqui é da Ilúmina Med!"
+                                            target="_blank" class="btn-action btn-zap">WhatsApp</a>
+                                        {% if not v.avaliacao_concluida %}
+                                        <a href="/confirmar_pagamento/{{ v.id }}" class="btn-action btn-baixa">Baixa</a>
+                                        {% else %}
+                                        <a href="https://api.whatsapp.com/send?phone={{ v.whatsapp }}&text=Olá {{ v.cliente_nome }}! Agradecemos a confiança na Ilúmina Med. Sua opinião é muito importante para nós. Poderia avaliar nosso atendimento neste link? {{ base_url }}/avaliar/{{ v.token_acesso }}"
+                                            target="_blank" class="btn-action"
+                                            style="background:#6366f1; color:white;">Pesquisa</a>
+                                        {% endif %}
+
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- Fim de Gestão de Pacientes -->
+            </div>
+
+            <div class="col-span-1">
+                <div class="section-box">
+                    <h2>Gestão de Depoimentos (Avaliações)</h2>
+                    <div class="scroll-section">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>CLIENTE</th>
+                                    <th>NOTA</th>
+                                    <th>COMENTÁRIO</th>
+                                    <th>STATUS</th>
+                                    <th style="text-align: right;">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in avaliacoes_todas %}
+                                <tr>
+                                    <td><b>{{ a.nome }}</b></td>
+                                    <td style="color: #ffc107;">{{ "⭐" * a.nota }}</td>
+                                    <td><small style="color: var(--text-light);">{{ a.comentario }}</small></td>
+                                    <td>
+                                        {% if a.exibir %}
+                                        <span class="status-badge"
+                                            style="background: #e6ffed; color: var(--success);">VISÍVEL</span>
+                                        {% else %}
+                                        <span class="status-badge"
+                                            style="background: #f3f3f3; color: #999;">OCULTO</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="/toggle_avaliacao/{{ a.id }}" class="btn-action"
+                                            style="background: #eee; color: #333;">{{ 'Ocultar' if a.exibir else
+                                            'Exibir' }}</a>
+                                        <a href="/del_avaliacao/{{ a.id }}" class="btn-del"
+                                            onclick="return confirm('Apagar depoimento?')">🗑️</a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #ddd; padding: 20px;">Nenhum
+                                        depoimento registrado ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- Fim Depoimentos -->
+            </div> <!-- FIM COLUNA 2 -->
+
+            <div class="col-span-1">
+                <div class="section-box" style="margin-bottom: 15px;">
+                    <h2>Novos Cadastros</h2>
+                    <div class="scroll-section" style="max-height: 300px;">
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <details style="background: var(--bg); border-radius: 8px; padding: 10px;">
+                                <summary
+                                    style="font-weight: 700; color: var(--primary); cursor: pointer; font-size: 11px;">
+                                    NOVO PARCEIRO</summary>
+                                <form action="/add_parceiro" method="post" class="form-add"
+                                    style="margin-top: 10px; padding: 0;">
+                                    <input name="nome" placeholder="Nome Fantasia" required>
+                                    <input name="zap" placeholder="WhatsApp" required>
+                                    <select name="eh_interno">
+                                        <option value="false">Externo (Comissão)</option>
+                                        <option value="true">Equipe Interna</option>
+                                    </select>
+                                    <select name="modo" required>
+                                        <option value="Domiciliar">Atendimento Domiciliar</option>
+                                        <option value="Consultório">Atendimento em Consultório</option>
+                                        <option value="Ambos">Ambos (Domiciliar e Consultório)</option>
+                                    </select>
+                                    <textarea name="endereco"
+                                        placeholder="Endereço do consultório ou área de atendimento (opcional)" rows="2"
+                                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:inherit; font-size:13px; margin-top:8px;"></textarea>
+                                    <button type="submit" class="btn-submit">Cadastrar</button>
+                                </form>
+                            </details>
+
+                            <details style="background: var(--bg); border-radius: 8px; padding: 10px;">
+                                <summary
+                                    style="font-weight: 700; color: var(--primary); cursor: pointer; font-size: 11px;">
+                                    NOVO SERVIÇO</summary>
+                                <form action="/add_servico" method="post" class="form-add"
+                                    style="margin-top: 10px; padding: 0;">
+                                    <select name="parceiro_id" required>
+                                        <option value="">Profissional</option>
+                                        {% for p, lucro in parceiros_info %}
+                                        <option value="{{ p.id }}">{{ p.nome_fantasia }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input name="nome" placeholder="Nome Serviço" required>
+                                    <input type="number" step="0.01" name="valor" placeholder="Valor (R$)" required>
+                                    <select name="tipo_ficha" required>
+                                        <option value="feridas">Ficha: Feridas</option>
+                                        <option value="estetica">Ficha: Estética</option>
+                                        <option value="geral">Ficha: Geral</option>
+                                    </select>
+                                    <button type="submit" class="btn-submit"
+                                        style="background: var(--accent);">Vincular</button>
+                                </form>
+                            </details>
+
+                            <details style="background: var(--bg); border-radius: 8px; padding: 10px;">
+                                <summary
+                                    style="font-weight: 700; color: var(--primary); cursor: pointer; font-size: 11px;">
+                                    DEPOIMENTO MANUAL</summary>
+                                <form action="/add_manual_avaliacao" method="post" class="form-add"
+                                    style="margin-top: 10px; padding: 0;">
+                                    <input name="nome" placeholder="Nome do Cliente" required>
+                                    <select name="nota" required>
+                                        <option value="5">⭐⭐⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="3">⭐⭐⭐</option>
+                                    </select>
+                                    <textarea name="comentario" placeholder="Texto do depoimento..." required
+                                        style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-family: inherit; font-size: 13px; margin-bottom: 12px;"></textarea>
+                                    <button type="submit" class="btn-submit" style="background: #10b981;">Salvar
+                                        Depoimento</button>
+                                </form>
+                            </details>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <h2>Serviços Ativos</h2>
+                    <div class="scroll-section" style="max-height: 250px;">
+                        <table>
+                            {% for s in servicos_cadastrados %}
+                            <tr>
+                                <td style="font-size: 11px; padding: 8px;">
+                                    <b style="color: var(--primary);">{{ s.nome }}</b><br>
+                                    <small>{{ s.parceiro_nome }}</small>
+                                </td>
+                                <td style="text-align: right; font-size: 11px; padding: 8px; white-space: nowrap;">
+                                    <a href="#" class="btn-action"
+                                        style="background: #e0f2f1; color: #009688; padding: 4px;"
+                                        onclick="abrirEditModal('{{ s.id }}', '{{ s.nome }}', '{{ s.valor }}', '{{ s.tipo_ficha }}')">✏️</a>
+                                    <a href="/del_servico/{{ s.id }}" class="btn-del" style="padding: 4px;"
+                                        onclick="return confirm('Remover este serviço?')">🗑️</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-box" style="margin-top: 20px;">
+                    <h2>Profissionais (editar morada)</h2>
+                    <div class="scroll-section" style="max-height: 250px;">
+                        <table>
+                            {% for p, lucro in parceiros_info %}
+                            <tr>
+                                <td style="border: none;">
+                                    <b>{{ p.nome_fantasia }}</b>
+                                    {% if p.eh_interno %}<br><small
+                                        style="color: var(--accent); font-weight: 700; text-transform: uppercase; font-size: 9px;">Equipe
+                                        Interna</small>{% endif %}
+                                    <br>
+                                    <span style="font-size: 9px; color: #666;">📍 {{ p.endereco or "A combinar" }}</span>
+                                </td>
+                                <td
+                                    style="border: none; text-align: right; font-weight: 700; color: var(--success); font-size: 14px;">
+                                    R$ {{ "{:.2f}".format(lucro) }}</td>
+                                <td style="text-align: right; border: none;">
+                                    <a href="#" class="btn-action"
+                                        style="background: #e0f2f1; color: #009688; padding: 4px;"
+                                        onclick="abrirEditParceiroModal('{{ p.id }}', '{{ p.nome_fantasia }}', '{{ p.whatsapp_professional }}', '{{ p.eh_interno }}', '{{ p.modo_atendimento }}', '{{ p.endereco or "" }}')">✏️</a>
+                                    <a href="/del_parceiro/{{ p.id }}" class="btn-del" style="padding: 4px;"
+                                        onclick="return confirm('Remover parceiro?')">🗑️</a>
+                                    <br>
+                                    <span style="font-size: 9px; color: #666;">📍 {{ p.modo_atendimento }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Editar Serviço (Existente) -->
+    <div id="modalEdit"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10001; align-items:center; justify-content:center;">
+        <div style="background:white; padding:30px; border-radius:12px; width:400px; position:relative;">
+            <h3 style="margin-top:0; color:var(--primary);">Editar Serviço</h3>
+            <form id="formEditServico" method="post">
+                <input name="nome" id="edit_nome" placeholder="Nome" required
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                <input type="number" step="0.01" name="valor" id="edit_valor" placeholder="Valor" required
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                <select name="tipo_ficha" id="edit_tipo"
+                    style="width:100%; margin-bottom:20px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                    <option value="feridas">Ficha: Feridas</option>
+                    <option value="estetica">Ficha: Estética</option>
+                    <option value="geral">Ficha: Geral</option>
+                </select>
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" class="btn-submit" style="margin:0;">Salvar</button>
+                    <button type="button" onclick="document.getElementById('modalEdit').style.display='none'"
+                        style="flex:1; background:#94a3b8; color:white; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Parceiro (Novo) -->
+    <div id="modalEditParceiro"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10001; align-items:center; justify-content:center;">
+        <div style="background:white; padding:30px; border-radius:12px; width:400px; position:relative;">
+            <h3 style="margin-top:0; color:var(--primary);">Editar Profissional</h3>
+            <form id="formEditParceiro" method="post">
+                <input name="nome" id="edit_p_nome" placeholder="Nome Fantasia" required
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                <input name="zap" id="edit_p_zap" placeholder="WhatsApp" required
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                <select name="eh_interno" id="edit_p_interno"
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                    <option value="false">Externo (Comissão)</option>
+                    <option value="true">Equipe Interna</option>
+                </select>
+                <select name="modo" id="edit_p_modo"
+                    style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                    <option value="Domiciliar">Atendimento Domiciliar</option>
+                    <option value="Consultório">Atendimento em Consultório</option>
+                    <option value="Ambos">Ambos (Domiciliar e Consultório)</option>
+                </select>
+                <textarea name="endereco" id="edit_p_endereco"
+                    placeholder="Endereço do consultório ou área de atendimento" rows="2"
+                    style="width:100%; margin-bottom:20px; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:inherit; font-size:13px;"></textarea>
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" class="btn-submit" style="margin:0;">Salvar</button>
+                    <button type="button" onclick="document.getElementById('modalEditParceiro').style.display='none'"
+                        style="flex:1; background:#94a3b8; color:white; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirEditModal(id, nome, valor, tipo) {
+            document.getElementById('modalEdit').style.display = 'flex';
+            document.getElementById('formEditServico').action = '/update_servico/' + id;
+            document.getElementById('edit_nome').value = nome;
+            document.getElementById('edit_valor').value = valor;
+            document.getElementById('edit_tipo').value = tipo;
+        }
+
+        function abrirEditParceiroModal(id, nome, zap, interno, modo, endereco) {
+            document.getElementById('modalEditParceiro').style.display = 'flex';
+            document.getElementById('formEditParceiro').action = '/update_parceiro/' + id;
+            document.getElementById('edit_p_nome').value = nome;
+            document.getElementById('edit_p_zap').value = zap;
+            document.getElementById('edit_p_interno').value = (interno === 'True' || interno === 'true') ? 'true' : 'false';
+            document.getElementById('edit_p_modo').value = modo;
+            document.getElementById('edit_p_endereco').value = endereco || '';
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('modalEdit').addEventListener('click', function (e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+        document.getElementById('modalEditParceiro').addEventListener('click', function (e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+
+        // Lógica de Ordenação
+        let currentSortColumn = -1;
+        let sortOrder = 1; // 1 para ASC, -1 para DESC
+
+        function sortTable(columnIndex, type) {
+            const tbody = document.getElementById('pacientes-body');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Toggle direção se clicar na mesma coluna
+            if (currentSortColumn === columnIndex) {
+                sortOrder *= -1;
+            } else {
+                currentSortColumn = columnIndex;
+                sortOrder = 1;
+            }
+
+            const sortedRows = rows.sort((a, b) => {
+                let valA = a.cells[columnIndex].innerText.trim();
+                let valB = b.cells[columnIndex].innerText.trim();
+
+                if (type === 'number') {
+                    // Limpa R$, comas e converte para float
+                    valA = parseFloat(valA.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+                    valB = parseFloat(valB.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+                } else {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return -1 * sortOrder;
+                if (valA > valB) return 1 * sortOrder;
+                return 0;
+            });
+
+            // Limpa e reinsere linhas ordenadas
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            tbody.append(...sortedRows);
+
+            // Feedback visual nos headers (opcional: adicionar setas)
+            const headers = document.querySelectorAll('th[onclick]');
+            headers.forEach((th, idx) => {
+                th.style.color = (idx === columnIndex) ? 'var(--accent)' : 'var(--text-light)';
+                // Poderia adicionar um indicador ↑↓ aqui se desejar
+            });
+        }
+    </script>
+</body>
+
+</html>

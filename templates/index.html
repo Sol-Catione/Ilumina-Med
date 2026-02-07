@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ilúmina Med - Tratamento de Feridas e Estética</title>
+    <meta name="description"
+        content="Clínica especializada em tratamento de feridas, laserterapia e estética em Cascavel/PR. Agende sua avaliação.">
+    <meta property="og:title" content="Ilúmina Med - Especialistas em Cicatrização e Estética">
+    <meta property="og:description"
+        content="Recupere sua auto-estima e qualidade de vida com tratamentos especializados.">
+    <meta property="og:image" content="{{ url_for('static', filename='logo_ilumina.png', _external=True) }}">
+    <meta property="og:type" content="website">
+
+    <!-- Placeholder para Google Analytics / Facebook Pixel -->
+    <!-- <script> ... </script> -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #013241;
+            --accent: #c5a059;
+            --text: #444;
+            --light: #f4f7f8;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #fff;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{{ url_for('static', filename='banner-iliminamed.png') }}");
+            background-size: cover;
+            background-position: bottom center;
+            background-repeat: no-repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .header {
+            background: var(--primary);
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent);
+        }
+
+        .logo-img {
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+            padding: 20px 15px 60px 15px;
+            flex: 1;
+            align-items: start;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 6px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .balao {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(238, 238, 238, 0.5);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card-width {
+            width: 100%;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+        }
+
+        .balao:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        .treatment-card h3 {
+            color: var(--primary);
+            margin: 0 0 4px 0;
+            font-size: 0.9rem;
+        }
+
+        .treatment-card p {
+            font-size: 0.75rem;
+            line-height: 1.3;
+            color: #555;
+            margin: 0;
+        }
+
+        .promo-box {
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 8px;
+            border-left: 4px solid var(--accent);
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .promo-box h3 {
+            color: var(--accent);
+            margin: 0 0 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .promo-box ul {
+            padding-left: 16px;
+            margin: 4px 0;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .faq-card {
+            cursor: pointer;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .faq-card b {
+            color: var(--primary);
+            font-size: 0.82rem;
+            display: block;
+        }
+
+        .faq-card p {
+            font-size: 0.72rem;
+            color: #555;
+            margin: 0;
+            line-height: 1.35;
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .faq-card:hover p {
+            max-height: 600px;
+            opacity: 1;
+            padding-top: 8px;
+        }
+
+        .healing-process-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px auto;
+            display: block;
+        }
+
+        .balao select,
+        .balao textarea,
+        .balao input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Novas Estilizações para Checkboxes (Facilidade Idosos) */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 6px;
+        }
+
+        .check-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .check-container:hover {
+            background: #f0f4f5;
+        }
+
+        .check-container input {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .form-group label {
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .check-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .check-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 6px;
+            transition: 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .online-payment-box {
+            margin-top: 15px;
+            border-left: 4px solid var(--accent) !important;
+        }
+
+        /* Estilo da Busca Inteligente */
+        .search-results {
+            position: relative;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            z-index: 2;
+            max-height: 300px;
+            overflow-y: auto;
+            display: block;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            min-height: 60px;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .search-item:hover {
+            background-color: var(--light);
+            color: var(--primary);
+            font-weight: 600;
+            transform: translateX(3px);
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item.selected {
+            background: #e9f6f5;
+            border-left: 3px solid var(--accent);
+        }
+
+        .pix-area {
+            text-align: center;
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .pix-qr {
+            width: 140px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .copy-pix-btn {
+            background: #00bfa5;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .payment-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .payment-tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fdfdfd;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .payment-tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #etapa-ficha {
+            display: none;
+        }
+
+        .scroll-ficha {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .footer-cred {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--primary);
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.8);
+            font-weight: 700;
+            border-top: 2px solid var(--accent);
+        }
+
+        .admin-link {
+            color: var(--primary);
+            text-decoration: none;
+            margin-left: 10px;
+            opacity: 0.6;
+            font-size: 0.75rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Classes para controle dinâmico da ficha */
+        .pergunta-bloco {
+            display: block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Tooltip para endereço */
+        .address-tooltip {
+            position: relative;
+            cursor: help;
+            font-weight: 600;
+            border: 1px solid #d7dde3;
+            background: #f6f8fa;
+        }
+
+        .address-tooltip .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 110%;
+            top: 50%;
+            transform: translateY(-50%) translateX(5px);
+            background: #0b3a4a;
+            color: white;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            max-width: 420px;
+            overflow-x: auto;
+            z-index: 200;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            line-height: 1.4;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .address-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: #0b3a4a;
+        }
+
+        .address-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+            pointer-events: auto;
+        }
+
+        .copy-address-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .copy-address-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo_ilumina.png') }}" class="logo-img" alt="Ilúmina Med">
+        </a>
+    </header>
+
+    <div class="main-container">
+        <div class="column">
+            <h2 class="section-title">Tratamentos Especializados</h2>
+            <div class="treatment-card balao card-width">
+                <h3>🔴 Laserterapia Regenerativa</h3>
+                <p>Acelera a cicatrização e reduz a dor de forma imediata.</p>
+            </div>
+            <div class="treatment-card balao card-width">
+                <h3>🛡️ Curativos de Alta Tecnologia</h3>
+                <p>Coberturas inteligentes que tratam a ferida e previnem infecções.</p>
+            </div>
+            <div class="treatment-card balao card-width">
+                <h3>✨ Laserterapia Sistêmica (ILIB)</h3>
+                <p>Melhora a circulação sanguínea e o sistema imunológico.</p>
+            </div>
+            <div class="treatment-card balao card-width">
+                <h3>📦 Gestão de Insumos</h3>
+                <p>Materiais premium selecionados para cada tipo de lesão.</p>
+            </div>
+
+            <h2 class="section-title">O que dizem nossos pacientes</h2>
+            <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                {% for av in avaliacoes %}
+                <div class="balao" style="padding: 15px;">
+                    <div style="color: var(--accent); margin-bottom: 5px;">
+                        {% for i in range(av.nota) %}⭐{% endfor %}
+                    </div>
+                    <p style="font-size: 0.85rem; font-style: italic; margin: 0;">"{{ av.comentario }}"</p>
+                    <small style="display: block; margin-top: 10px; font-weight: 600; color: var(--primary);">— {{
+                        av.nome }}</small>
+                </div>
+                {% endfor %}
+                {% if not avaliacoes %}
+                <p style="font-size: 0.8rem; color: #888; text-align: center;">Aguardando as primeiras avaliações de
+                    pacientes...</p>
+                {% endif %}
+            </div>
+
+            <div class="promo-box">
+                <h3>💎 Planos de Tratamento</h3>
+                <ul>
+                    <li><b>Pacote 3 sessões:</b> 5% de desconto</li>
+                    <li><b>Pacote 5 sessões:</b> 10% de desconto</li>
+                    <li><b>Pacote 10 sessões:</b> 15% de desconto</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="column">
+            <h2 class="section-title">Perguntas Frequentes</h2>
+            <div class="faq-card balao card-width">
+                <b>Posso deixar a ferida sem curativo para "respirar" e "secar" mais rápido?</b>
+                <p>Não, pois a ferida sem um curativo fechado e adequado, pode trazer consequências, como ressecar o
+                    tecido, causando necrose ou retração da pele e pode aumentar o risco de infecções por bactérias,
+                    vírus ou fungos. A ferida precisa de controle de umidade, que um curativo adequado irá realizar, e
+                    uma boa circulação na região, pois é a corrente sanguínea que leva o sangue rico em vitaminas,
+                    proteínas e oxigênio.</p>
+            </div>
+            <div class="faq-card balao card-width">
+                <b>Posso lavar a ferida no banho?</b>
+                <p>Não pode, pois a sujidade e suor do corpo escorre para a ferida, causando contaminação e possível
+                    infeção.</p>
+            </div>
+            <div class="faq-card balao card-width">
+                <b>Posso usar antisséptico spray, antibióticos tópicos, pomadas ou spray anestésico na ferida?</b>
+                <p>Não, pois esses produtos causam destruição no tecido, atrasam o processo de cicatrização (atrapalham
+                    a formação da ponte epitelial e regeneração da nova pele) e causam resistência bacteriana. Exemplos:
+                    rifocina, neomicina, bacitracina, colagenase com cloranfenicol.</p>
+            </div>
+            <div class="faq-card balao card-width">
+                <b>Posso realizar a limpeza da ferida com água e sabão, clorexidina, PVPI, álcool 70% ou água
+                    oxigenada?</b>
+                <p>Não, a limpeza da ferida deve ser feita apenas com solução fisiológica 0,9%, PHMB que são soluções
+                    antimicrobianas, ou água destilada, que é uma solução livre de impurezas, remove as sujidades sem
+                    danificar o tecido de cicatrização.</p>
+            </div>
+            <div class="balao" style="margin-top: 40px; border-left: 6px solid var(--primary);">
+                <p style="color: var(--primary); font-weight: 600;">Processo de Cicatrização:</p>
+                <p style="font-size: 0.85rem; color: #555; line-height: 1.5; margin-bottom: 10px;">
+                    A cicatrização é um processo dinâmico dividido em fases: Inflamatória (limpeza), Proliferativa
+                    (preenchimento) e Remodelação (fechamento). Nosso objetivo é otimizar cada etapa biológica através
+                    de curativos tecnológicos e laserterapia, reduzindo a dor e protegendo o novo tecido para garantir
+                    uma recuperação rápida, segura e sem retrocessos.
+                </p>
+                <img src="{{ url_for('static', filename='ilustracao-simplificada.png') }}"
+                    class="healing-process-image">
+            </div>
+        </div>
+
+        <div class="column">
+            <h2 class="section-title">Agendar Avaliação</h2>
+
+            <div id="etapa-agendamento">
+                <div class="balao card-width" style="margin-bottom: 12px;">
+                    <input type="text" id="nome_paciente" placeholder="Nome Completo">
+                </div>
+
+                <div class="balao card-width" style="margin-bottom: 12px;">
+                    <input type="text" id="whatsapp_paciente" placeholder="WhatsApp">
+                </div>
+
+                <div class="balao card-width" style="margin-bottom: 12px;">
+                    <input type="email" id="email_paciente" placeholder="E-mail (Para confirmação)">
+                </div>
+
+                <div class="balao card-width" style="margin-bottom: 12px;">
+                    <label>Data Sugerida:</label>
+                    <input type="date" id="data_agendamento">
+                </div>
+
+                <div class="balao" style="margin-bottom: 12px;">
+                    <label>Procedimento Desejado:</label>
+                    <input type="text" id="busca_servico" placeholder="Clique para ver todos os procedimentos..."
+                        style="padding: 10px; font-size: 0.9rem;"
+                        oninput="filtrarServicos()" onfocus="filtrarServicos()" autocomplete="off">
+                    <input type="hidden" id="servico_escolhido_val">
+                    <input type="hidden" id="tipo_ficha_val">
+                    <div id="lista_resultados" class="search-results"></div>
+                </div>
+
+                <div class="balao"
+                    style="font-size: 0.85rem; border-left: 4px solid var(--accent); padding: 15px; margin-top: 12px; margin-bottom: 15px;">
+                    <label class="check-item"
+                        style="cursor: pointer; display: flex; align-items: flex-start; gap: 10px;">
+                        <input type="checkbox" id="consentimento_inicial"
+                            style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0;">
+                        <span style="line-height: 1.5;">Concordo com a <a href="/privacidade" target="_blank"
+                                style="color: var(--accent); text-decoration: underline;">Política de Privacidade</a> e
+                            autorizo o contato.</span>
+                    </label>
+                </div>
+
+                <button onclick="irParaFicha()" class="btn" id="btn-proximo">Próximo Passo</button>
+
+                <div class="balao online-payment-box" id="caixa-pagamento-estavel">
+                    <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0 0 10px 0;">💳 Pagamento Online</h3>
+                    <label>Pagar agora (Selecione o serviço):</label>
+                    <select id="pagamento_online_select" onchange="atualizarPagamento()">
+                        <option value="0|0">Escolha o serviço...</option>
+                        {% for s in servicos_disponiveis %}
+                        <option value="{{ s.valor }}|{{ s.nome }}">{{ s.nome }} - R$ {{ "{:.2f}".format(s.valor) }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="area_detalhes_pagamento" style="display:none; margin-top: 15px;">
+                        <div class="payment-tabs">
+                            <button class="payment-tab-btn active" onclick="switchTab('pix')">💠 PIX</button>
+                            <button class="payment-tab-btn" onclick="switchTab('card')">💳 Cartão</button>
+                        </div>
+
+                        <div id="tab-pix" class="tab-content active">
+                            <div class="pix-area" style="display: block;">
+                                <img src="" id="pix_img" class="pix-qr">
+                                <p style="font-size: 0.75rem; color: #666; margin: 5px 0;">CNPJ: 62.706.476/0001-08</p>
+                                <button class="copy-pix-btn" onclick="copiarPix()">Copiar Código PIX</button>
+                            </div>
+                        </div>
+
+                        <div id="tab-card" class="tab-content">
+                            <div class="balao" style="padding: 10px; border: 1px solid #eee; background: #fff;">
+                                <label>Parcelas Cartão de Crédito:</label>
+                                <select id="parcelas_cartao" style="font-size: 0.8rem; margin-bottom: 10px;"></select>
+                                <button class="btn" onclick="pagarComCartao()"
+                                    style="padding: 10px; font-size: 0.8rem; background: var(--primary);">Pagar com
+                                    Cartão</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="etapa-ficha">
+                <div class="scroll-ficha">
+                    <form id="form-ficha" enctype="multipart/form-data"
+                        onsubmit="event.preventDefault(); finalizarFicha();">
+                        <input type="hidden" name="token" id="token_venda">
+
+                        <div class="form-group">
+                            <label>Condições de Saúde (Marque todas que se aplicam):</label>
+                            <div class="checkbox-grid">
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Diabetes Mellitus"> Diabetes Mellitus</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Pressão Alta"> Doenças cardiovasculares (Pressão alta)</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Doenças Vasculares"> Doenças Vasculares (Varizes, Trombose,
+                                    Úlceras)</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Obesidade"> Obesidade</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Tabagismo"> Tabagismo</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Alcoolismo"> Alcoolismo</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Imunossupressão"> Doenças Imunossupressoras (HIV, Câncer)</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Autoimunes"> Doenças Autoimunes (Lúpus, Artrite)</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Insuficiência Renal/Hepática"> Insuficiência Renal ou Hepática</label>
+                                <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                                        value="Desnutrição/Anemia"> Desnutrição ou Anemia</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Possui alguma doença infectocontagiosa?</label>
+                            <div class="checkbox-grid">
+                                <label class="check-container"><input type="checkbox" name="infecciosas"
+                                        value="Hepatite B"> Hepatite B</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas"
+                                        value="Hepatite C"> Hepatite C</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas" value="HIV">
+                                    HIV</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas"
+                                        value="Sífilis"> Sífilis</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas" value="Herpes">
+                                    Herpes</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas"
+                                        value="Bactéria multirresistente"> Bactéria multirresistente</label>
+                                <label class="check-container"><input type="checkbox" name="infecciosas"
+                                        value="Outras/ISTs"> Outras doenças ou ISTs</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="outras_comorbidades_detalhado">Outras informações importantes
+                                (Opcional):</label>
+                            <textarea id="outras_comorbidades_detalhado" name="outras_comorbidades_detalhado"
+                                placeholder="Relate aqui alergias a medicamentos, cirurgias recentes ou qualquer detalhe relevante..."></textarea>
+                        </div>
+                        <div class="balao pergunta-bloco">
+                            <label style="margin-top:10px;">Consumo de bebida alcoólica (mais de 3x por semana)?</label>
+                            <select name="consumo_alcool">
+                                <option value="Não">Não</option>
+                                <option value="Sim">Sim</option>
+                            </select>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
+                            <label>Restrições de Mobilidade:</label>
+                            <select name="mobilidade">
+                                <option value="Nenhuma">Caminha normalmente</option>
+                                <option value="Auxílio de muletas">Deambula com auxílio de muletas</option>
+                                <option value="Cadeirante">Cadeirante</option>
+                                <option value="Acamado">Acamado</option>
+                                <option value="Amputação prévia">Possui amputações prévias</option>
+                            </select>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
+                            <label>Quantas lesões possui?</label>
+                            <input type="number" name="quantidade_lesoes" value="1" min="1">
+
+                            <label style="margin-top:10px;">Tamanho aproximado da maior ferida:</label>
+                            <select name="tamanho_ferida">
+                                <option value="Pequena">Pequena (até 5cm de diâmetro)</option>
+                                <option value="Média">Média (até 10cm de diâmetro)</option>
+                                <option value="Grande">Grande (maior que 10cm)</option>
+                            </select>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Já realizou algum procedimento estético anteriormente (Botox, Preenchimento)?</label>
+                            <textarea name="estetica_anterior" rows="2"
+                                placeholder="Descreva se já fez e há quanto tempo..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Usa algum ácido ou creme de tratamento atualmente?</label>
+                            <textarea name="uso_acidos" rows="2" placeholder="Quais produtos utiliza?"></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Como é sua rotina de cuidados com a pele (Skincare)?</label>
+                            <textarea name="rotina_skincare" rows="2"
+                                placeholder="Lava, hidrata, usa protetor solar?"></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco">
+                            <label>Envie fotos da área a ser tratada (Opcional):</label>
+                            <div style="background: #fdfdfd; border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;"
+                                onclick="document.getElementById('input_fotos').click()">
+                                📷 Clique para adicionar fotos
+                                <input type="file" name="fotos_lesao" id="input_fotos" multiple accept="image/*"
+                                    style="display: none;"
+                                    onchange="alert(this.files.length + ' foto(s) selecionada(s)')">
+                            </div>
+                        </div>
+
+                        <div class="balao pergunta-bloco">
+                            <label>Tem Alergia a algum remédio ou curativo?</label>
+                            <textarea name="alergias" rows="2" placeholder="Ex: Alergia a Iodo, látex..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
+                            <label>Há quanto tempo tem essa ferida?</label>
+                            <textarea name="historico" rows="2" placeholder="Ex: Tenho há 2 meses..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
+                            <label>A ferida tem cheiro ruim, sai líquido ou dói muito?</label>
+                            <textarea name="sintomas" rows="2" placeholder="Descreva o que sente..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco">
+                            <label>Informações importantes (Opcional):</label>
+                            <textarea name="tratamentos_anteriores" rows="2"
+                                placeholder="Algo mais que deseja relatar?"></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" style="border-left: 4px solid var(--accent);">
+                            <label class="check-item">
+                                <input type="checkbox" name="consentimento_saude" required
+                                    style="width: 18px; height: 18px;">
+                                <span style="font-size: 0.85rem;">Autorizo o tratamento dos meus dados de saúde
+                                    (anamnese) para fins de consulta técnica pela Ilúmina Med conforme a <a
+                                        href="/privacidade" target="_blank">LGPD</a>.</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn" id="btn-finalizar">PRÓXIMO PASSO</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Fim das etapas de agendamento -->
+
+
+        </div>
+    </div>
+
+    <footer class="footer-cred">
+        <div>Ilúmina Med | Coren 481015<br>Profissionais especializados em estomaterapia, feridas e laserterapia.<br>Foz
+            do Iguaçu - Paraná</div>
+        <a href="/login" class="admin-link">Gestão</a>
+    </footer>
+
+    <script>
+        // Carrega serviços para busca inteligente
+        let servicosDB = [];
+        async function carregarServicos() {
+            try {
+                const r = await fetch('/listar_servicos_json');
+                servicosDB = await r.json();
+            } catch (e) { console.error("Erro ao carregar serviços", e); }
+        }
+        carregarServicos();
+
+        function filtrarServicos() {
+            const busca = document.getElementById('busca_servico').value.toLowerCase();
+            const lista = document.getElementById('lista_resultados');
+            lista.innerHTML = '';
+
+            const filtrados = (busca === '')
+                ? servicosDB
+                : servicosDB.filter(s => s.nome.toLowerCase().includes(busca));
+
+            if (filtrados.length > 0) {
+                filtrados.forEach(s => {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.innerHTML = `
+                        <div style="font-weight:600; color:var(--primary); font-size:0.88rem; margin-bottom:4px; line-height:1.3; display:block;">
+                            ${s.nome} - Valor: R$ ${s.valor.toFixed(2)}
+                        </div>
+                        <div style="font-size:0.72rem; color:#666; line-height:1.2; display:block;">
+                            Profissional: ${s.profissional}
+                        </div>
+                        <div style="font-size:0.72rem; color:#888; line-height:1.2; margin-top:2px; display:block;">
+                            📍 ${s.endereco}${s.modo === 'Domiciliar' || s.modo === 'Ambos' ? ' - (Atendimento também por domicílio).' : ''}
+                        </div>
+                    `;
+                    item.onclick = () => {
+                        lista.querySelectorAll('.search-item').forEach(el => el.classList.remove('selected'));
+                        item.classList.add('selected');
+                        document.getElementById('busca_servico').value = s.nome;
+                        document.getElementById('servico_escolhido_val').value = `${s.nome}|${s.valor}|${s.parceiro_id || 1}`;
+                        document.getElementById('tipo_ficha_val').value = s.tipo_ficha;
+                        ajustarFichaVisivel(s.tipo_ficha);
+                    };
+                    lista.appendChild(item);
+                });
+            } else {
+                lista.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#888;">Nenhum procedimento encontrado.</div>';
+            }
+        }
+
+        function selecionarServico(s) {
+            document.getElementById('busca_servico').value = s.nome;
+            // Salva formato: NOME|VALOR|PARCEIRO_ID
+            document.getElementById('servico_escolhido_val').value = `${s.nome}|${s.valor}|${s.parceiro_id || s.p_id || 1}`;
+            // Salva o tipo da ficha vinculado ao serviço
+            document.getElementById('tipo_ficha_val').value = s.tipo_ficha || 'geral';
+        }
+
+        // Fechar lista se clicar fora do balão de busca
+        document.addEventListener('click', function () { });
+
+        function ajustarFichaVisivel(tipo) {
+            const blocos = document.querySelectorAll('.pergunta-bloco');
+            blocos.forEach(bloco => {
+                const fichaData = bloco.getAttribute('data-ficha');
+                if (!fichaData) {
+                    // Se não tem atributo data-ficha, é comum a todos
+                    bloco.classList.remove('hidden');
+                } else if (fichaData.includes(tipo)) {
+                    // Se o tipo escolhido está na lista de tipos do bloco
+                    bloco.classList.remove('hidden');
+                } else {
+                    // Caso contrário, esconde
+                    bloco.classList.add('hidden');
+                }
+            });
+        }
+
+        async function irParaFicha() {
+            const nome = document.getElementById('nome_paciente').value.trim();
+            const zap = document.getElementById('whatsapp_paciente').value.trim();
+            const email = document.getElementById('email_paciente').value.trim();
+            const data = document.getElementById('data_agendamento').value;
+            const serv = document.getElementById('servico_escolhido_val').value;
+            const tipoFicha = document.getElementById('tipo_ficha_val').value;
+
+            if (!nome || !zap || !serv) {
+                alert("Por favor, preencha nome, whatsapp e escolha um procedimento na lista!");
+                return;
+            }
+
+            if (!document.getElementById('consentimento_inicial').checked) {
+                alert("Você precisa concordar com a política de privacidade para continuar.");
+                return;
+            }
+
+            const btnProximo = document.getElementById('btn-proximo');
+            const textoOriginal = btnProximo.innerHTML;
+
+            try {
+                btnProximo.disabled = true;
+                btnProximo.innerHTML = 'Processando... <span class="loading-spinner"></span>';
+
+                const response = await fetch('/iniciar_venda', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cliente: nome,
+                        whatsapp: zap,
+                        email: email,
+                        data_sugerida: data,
+                        servico_info: serv
+                    })
+                });
+
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                const res = await response.json();
+                if (res.erro) throw new Error(res.erro);
+
+                // Ajusta as perguntas da ficha antes de mostrar
+                ajustarFichaVisivel(tipoFicha);
+
+                document.getElementById('token_venda').value = res.token;
+                document.getElementById('etapa-agendamento').style.display = 'none';
+                document.getElementById('etapa-ficha').style.display = 'block';
+                document.getElementById('etapa-ficha').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                alert('Erro: ' + error.message);
+                btnProximo.disabled = false;
+                btnProximo.innerHTML = textoOriginal;
+            }
+        }
+
+        async function finalizarFicha() {
+            const form = document.getElementById('form-ficha');
+            const formData = new FormData(form);
+            const btnFinalizar = document.getElementById('btn-finalizar');
+            const textoOriginal = btnFinalizar.innerHTML;
+
+            try {
+                btnFinalizar.disabled = true;
+                btnFinalizar.innerHTML = 'Enviando... <span class="loading-spinner"></span>';
+                const response = await fetch('/finalizar_agendamento', { method: 'POST', body: formData });
+                const res = await response.json();
+                if (res.erro) throw new Error(res.erro);
+
+                if (res.link_whatsapp) {
+                    window.open(res.link_whatsapp, '_blank');
+                    setTimeout(() => { location.reload(); }, 1000);
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+                btnFinalizar.disabled = false;
+                btnFinalizar.innerHTML = textoOriginal;
+            }
+        }
+
+        let pixCopiaECola = "";
+        let linkCartaoAtual = "";
+        async function atualizarPagamento() {
+            const val = document.getElementById('pagamento_online_select').value;
+            const [valor, nome] = val.split('|');
+            if (valor == "0") {
+                document.getElementById('area_detalhes_pagamento').style.display = 'none';
+                return;
+            }
+            try {
+                const response = await fetch(`/gerar_dados_pagamento?valor=${valor}&nome=${encodeURIComponent(nome)}`);
+                const data = await response.json();
+
+                // Atualiza PIX
+                if (data.qr_code) {
+                    document.getElementById('pix_img').src = data.qr_code;
+                }
+                pixCopiaECola = data.payload;
+
+                // Atualiza Cartão
+                linkCartaoAtual = data.card_url;
+                const select = document.getElementById('parcelas_cartao');
+                select.innerHTML = '<option>Débito à vista</option>';
+                if (data.parcelas && Array.isArray(data.parcelas)) {
+                    data.parcelas.forEach(p => {
+                        if (p.n > 1) select.innerHTML += `<option>${p.n}x de R$ ${p.valor.toFixed(2)}</option>`;
+                    });
+                }
+
+                document.getElementById('area_detalhes_pagamento').style.display = 'block';
+
+                // Força a exibição da aba PIX por padrão se houver QR Code
+                if (data.qr_code) {
+                    switchTab('pix');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao carregar dados de pagamento. Tente novamente.');
+            }
+        }
+
+        function pagarComCartao() {
+            if (linkCartaoAtual) {
+                window.open(linkCartaoAtual, '_blank');
+            } else {
+                alert("Erro ao gerar link de pagamento. Tente PIX ou escolha outro serviço.");
+            }
+        }
+
+        function copiarPix() {
+            navigator.clipboard.writeText(pixCopiaECola).then(() => alert("Código PIX copiado com sucesso!"));
+        }
+
+        function switchTab(tab) {
+            // Remove active classes
+            document.querySelectorAll('.payment-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.payment-tab-btn');
+            if (tab === 'pix') {
+                if (btns[0]) btns[0].classList.add('active');
+                document.getElementById('tab-pix').classList.add('active');
+            } else {
+                if (btns[1]) btns[1].classList.add('active');
+                document.getElementById('tab-card').classList.add('active');
+            }
+        }
+
+        function copiarEndereco(endereco) {
+            navigator.clipboard.writeText(endereco).then(() => {
+                alert("✅ Endereço copiado: " + endereco);
+            }).catch(() => {
+                alert("Endereço: " + endereco);
+            });
+        }
+    </script>
+</body>
+
+</html>

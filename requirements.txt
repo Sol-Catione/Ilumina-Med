@@ -1,0 +1,9 @@
+flask
+sqlalchemy
+groq
+mercadopago
+python-dotenv
+gunicorn
+qrcode
+pillow
+psycopg2-binary

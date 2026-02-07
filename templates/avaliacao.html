@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Triagem - Ilúmina Med</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f7f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border-top: 8px solid #013241;
+        }
+
+        h2 {
+            color: #013241;
+            margin-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #013241;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+
+        /* Estilos para Checkboxes (Facilidade Idosos) */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-top: 10px;
+        }
+
+        .check-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .check-container:hover {
+            background: #eee;
+        }
+
+        .check-container input {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 12px;
+            border-left: 5px solid #013241;
+        }
+
+        /* Estilo do Botão */
+        .btn-proximo {
+            background: #c5a059;
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            /* Garante que o botão seja clicável em toda área */
+        }
+
+        .btn-proximo:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" style="display: block; text-align: center; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='logo_ilumina.PNG') }}" alt="Ilúmina Med"
+                style="height: 60px; width: auto;">
+        </a>
+        <h2>Ficha Pré-Consulta</h2>
+        <form id="formFicha">
+            <input type="hidden" name="token" id="tokenField" value="{{ token }}">
+
+            <label>Quantas lesões possui?</label>
+            <input type="number" name="quantidade_lesoes" value="1" min="1">
+
+            <label style="margin-top:10px;">Tamanho aproximado da maior ferida:</label>
+            <select name="tamanho_ferida">
+                <option value="Pequena">Pequena (até 5cm de diâmetro)</option>
+                <option value="Média">Média (até 10cm de diâmetro)</option>
+                <option value="Grande">Grande (maior que 10cm)</option>
+            </select>
+
+            <label>Sintomas (Dor, Odor, etc):</label>
+            <textarea name="sintomas" rows="2" required></textarea>
+
+            <label>Tempo de evolução:</label>
+            <input type="text" name="historico" required>
+
+            <div class="form-section">
+                <label>Condições de Saúde (Selecione uma ou mais):</label>
+                <div class="checkbox-grid">
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Diabetes Mellitus"> Diabetes Mellitus</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Pressão Alta"> Pressão Alta</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Doenças Vasculares"> Doenças Vasculares (Trombose/Varizes)</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista" value="Obesidade">
+                        Obesidade</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista" value="Tabagismo">
+                        Tabagismo</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista" value="Alcoolismo">
+                        Alcoolismo</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Imunossupressão"> Imunossupressão (Câncer/HIV)</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista" value="Autoimunes">
+                        Doenças Autoimunes</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Insuficiência Renal/Hepática"> Insuficiência Renal/Hepática</label>
+                    <label class="check-container"><input type="checkbox" name="comorbidades_lista"
+                            value="Desnutrição/Anemia"> Desnutrição ou Anemia</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Doenças Infectocontagiosas:</label>
+                <div class="checkbox-grid">
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="Hepatite B">
+                        Hepatite B</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="Hepatite C">
+                        Hepatite C</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="HIV"> HIV</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="Sífilis">
+                        Sífilis</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="Herpes">
+                        Herpes</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas"
+                            value="Bactéria multirresistente"> Bactéria multirresistente</label>
+                    <label class="check-container"><input type="checkbox" name="infecciosas" value="Outras/ISTs"> Outras
+                        / ISTs</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label for="outras_comorbidades_detalhado">Outras informações importantes (Opcional):</label>
+                <textarea id="outras_comorbidades_detalhado" name="outras_comorbidades_detalhado" rows="3"
+                    placeholder="Alergias, medicamentos, cirurgias recentes..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <label>Alergias conhecidas:</label>
+                <input type="text" name="alergias" placeholder="Ex: Dipirona, Latex, etc.">
+
+                <label style="margin-top:10px;">Consumo frequente de álcool (3x+ p/ semana)?</label>
+                <select name="consumo_alcool">
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
+            </div>
+
+            <label>Mobilidade:</label>
+            <select name="mobilidade">
+                <option value="Normal">Normal</option>
+                <option value="Auxílio de muletas">Deambula com auxílio de muletas</option>
+                <option value="Reduzida">Reduzida</option>
+                <option value="Cadeirante">Cadeirante</option>
+                <option value="Acamado">Acamado</option>
+                <option value="Amputação prévia">Possui amputações prévias</option>
+            </select>
+
+            <label>Alergias:</label>
+            <input type="text" name="alergias" required>
+
+            <label>Tratamentos anteriores:</label>
+            <textarea name="tratamentos_anteriores" rows="2"></textarea>
+
+            <button type="button" id="btnEnviar" class="btn-proximo">PRÓXIMO PASSO</button>
+        </form>
+    </div>
+
+    <script>
+        // Captura o clique de forma direta
+        document.getElementById('btnEnviar').addEventListener('click', async function () {
+            const btn = this;
+            const form = document.getElementById('formFicha');
+
+            // Validação simples manual
+            if (!form.checkValidity()) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                form.reportValidity();
+                return;
+            }
+
+            btn.innerText = "CARREGANDO...";
+            btn.disabled = true;
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/finalizar_agendamento', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.link_whatsapp) {
+                    // Redireciona para o WhatsApp
+                    window.location.href = result.link_whatsapp;
+                } else {
+                    alert("Erro ao salvar dados.");
+                    btn.disabled = false;
+                    btn.innerText = "PRÓXIMO PASSO";
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão.");
+                btn.disabled = false;
+                btn.innerText = "PRÓXIMO PASSO";
+            }
+        });
+    </script>
+</body>
+
+</html>
