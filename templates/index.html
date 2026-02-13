@@ -440,6 +440,12 @@
             display: none;
         }
 
+        #etapa-agendamento {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
         .scroll-ficha {
             max-height: 600px;
             overflow-y: auto;
@@ -497,6 +503,10 @@
 
             .bottom-align {
                 margin-top: 0;
+            }
+
+            #etapa-agendamento {
+                display: block;
             }
         }
 
@@ -720,37 +730,39 @@
 
                 <button onclick="irParaFicha()" class="btn" id="btn-proximo">Próximo Passo</button>
 
-                <div class="balao online-payment-box" id="caixa-pagamento-estavel">
-                    <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0 0 10px 0;">💳 Pagamento Online</h3>
-                    <label>Pagar agora (Selecione o serviço):</label>
-                    <select id="pagamento_online_select" onchange="atualizarPagamento()">
-                        <option value="0|0">Escolha o serviço...</option>
-                        {% for s in servicos_disponiveis %}
-                        <option value="{{ s.valor }}|{{ s.nome }}">{{ s.nome }} - R$ {{ "{:.2f}".format(s.valor) }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="bottom-align">
+                    <div class="balao online-payment-box" id="caixa-pagamento-estavel">
+                        <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0 0 10px 0;">💳 Pagamento Online</h3>
+                        <label>Pagar agora (Selecione o serviço):</label>
+                        <select id="pagamento_online_select" onchange="atualizarPagamento()">
+                            <option value="0|0">Escolha o serviço...</option>
+                            {% for s in servicos_disponiveis %}
+                            <option value="{{ s.valor }}|{{ s.nome }}">{{ s.nome }} - R$ {{ "{:.2f}".format(s.valor) }}</option>
+                            {% endfor %}
+                        </select>
 
-                    <div id="area_detalhes_pagamento" style="display:none; margin-top: 15px;">
-                        <div class="payment-tabs">
-                            <button class="payment-tab-btn active" onclick="switchTab('pix')">💠 PIX</button>
-                            <button class="payment-tab-btn" onclick="switchTab('card')">💳 Cartão</button>
-                        </div>
-
-                        <div id="tab-pix" class="tab-content active">
-                            <div class="pix-area" style="display: block;">
-                                <img src="" id="pix_img" class="pix-qr">
-                                <p style="font-size: 0.75rem; color: #666; margin: 5px 0;">CNPJ: 62.706.476/0001-08</p>
-                                <button class="copy-pix-btn" onclick="copiarPix()">Copiar Código PIX</button>
+                        <div id="area_detalhes_pagamento" style="display:none; margin-top: 15px;">
+                            <div class="payment-tabs">
+                                <button class="payment-tab-btn active" onclick="switchTab('pix')">💠 PIX</button>
+                                <button class="payment-tab-btn" onclick="switchTab('card')">💳 Cartão</button>
                             </div>
-                        </div>
 
-                        <div id="tab-card" class="tab-content">
-                            <div class="balao" style="padding: 10px; border: 1px solid #eee; background: #fff;">
-                                <label>Parcelas Cartão de Crédito:</label>
-                                <select id="parcelas_cartao" style="font-size: 0.8rem; margin-bottom: 10px;"></select>
-                                <button class="btn" onclick="pagarComCartao()"
-                                    style="padding: 10px; font-size: 0.8rem; background: var(--primary);">Pagar com
-                                    Cartão</button>
+                            <div id="tab-pix" class="tab-content active">
+                                <div class="pix-area" style="display: block;">
+                                    <img src="" id="pix_img" class="pix-qr">
+                                    <p style="font-size: 0.75rem; color: #666; margin: 5px 0;">CNPJ: 62.706.476/0001-08</p>
+                                    <button class="copy-pix-btn" onclick="copiarPix()">Copiar Código PIX</button>
+                                </div>
+                            </div>
+
+                            <div id="tab-card" class="tab-content">
+                                <div class="balao" style="padding: 10px; border: 1px solid #eee; background: #fff;">
+                                    <label>Parcelas Cartão de Crédito:</label>
+                                    <select id="parcelas_cartao" style="font-size: 0.8rem; margin-bottom: 10px;"></select>
+                                    <button class="btn" onclick="pagarComCartao()"
+                                        style="padding: 10px; font-size: 0.8rem; background: var(--primary);">Pagar com
+                                        Cartão</button>
+                                </div>
                             </div>
                         </div>
                     </div>
