@@ -10,7 +10,7 @@
     <meta property="og:title" content="Ilúmina Med - Especialistas em Cicatrização e Estética">
     <meta property="og:description"
         content="Recupere sua auto-estima e qualidade de vida com tratamentos especializados.">
-    <meta property="og:image" content="{{ url_for('static', filename='logo_ilumina.png', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='logo_ilumina.PNG', _external=True) }}">
     <meta property="og:type" content="website">
 
     <!-- Placeholder para Google Analytics / Facebook Pixel -->
@@ -563,7 +563,7 @@
 <body>
     <header class="header">
         <a href="/">
-            <img src="{{ url_for('static', filename='logo_ilumina.png') }}" class="logo-img" alt="Ilúmina Med">
+            <img src="{{ url_for('static', filename='logo_ilumina.PNG') }}" class="logo-img" alt="Ilúmina Med">
         </a>
     </header>
 
@@ -693,7 +693,7 @@
                         style="cursor: pointer; display: flex; align-items: flex-start; gap: 10px;">
                         <input type="checkbox" id="consentimento_inicial"
                             style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0;">
-                        <span style="line-height: 1.5;">Concordo com a <a href="/privacidade" target="_blank"
+                        <span style="line-height: 1.5;">Concordo com a <a href="{{ url_for('privacidade') }}" target="_blank"
                                 style="color: var(--accent); text-decoration: underline;">Política de Privacidade</a> e
                             autorizo o contato.</span>
                     </label>
@@ -745,7 +745,7 @@
                         onsubmit="event.preventDefault(); finalizarFicha();">
                         <input type="hidden" name="token" id="token_venda">
 
-                        <div class="form-group">
+                        <div class="form-group" data-ficha="feridas">
                             <label>Condições de Saúde (Marque todas que se aplicam):</label>
                             <div class="checkbox-grid">
                                 <label class="check-container"><input type="checkbox" name="comorbidades_lista"
@@ -772,7 +772,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-ficha="feridas">
                             <label>Possui alguma doença infectocontagiosa?</label>
                             <div class="checkbox-grid">
                                 <label class="check-container"><input type="checkbox" name="infecciosas"
@@ -792,7 +792,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-ficha="feridas">
                             <label for="outras_comorbidades_detalhado">Outras informações importantes
                                 (Opcional):</label>
                             <textarea id="outras_comorbidades_detalhado" name="outras_comorbidades_detalhado"
@@ -830,6 +830,12 @@
                         </div>
 
                         <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Queixa Principal: O que mais incomoda você hoje?</label>
+                            <textarea name="estetica_queixa_principal" rows="2"
+                                placeholder="Ex: rugas, manchas, flacidez..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
                             <label>Já realizou algum procedimento estético anteriormente (Botox, Preenchimento)?</label>
                             <textarea name="estetica_anterior" rows="2"
                                 placeholder="Descreva se já fez e há quanto tempo..."></textarea>
@@ -841,12 +847,87 @@
                         </div>
 
                         <div class="balao pergunta-bloco" data-ficha="estetica">
-                            <label>Como é sua rotina de cuidados com a pele (Skincare)?</label>
-                            <textarea name="rotina_skincare" rows="2"
-                                placeholder="Lava, hidrata, usa protetor solar?"></textarea>
+                            <label>Tem histórico de herpes labial ou facial?</label>
+                            <select name="historico_herpes">
+                                <option value="Não">Não</option>
+                                <option value="Sim">Sim</option>
+                            </select>
                         </div>
 
-                        <div class="balao pergunta-bloco">
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Tem tendência a queloides ou manchas após cortes/picadas?</label>
+                            <select name="historico_cicatrizacao">
+                                <option value="Não">Não</option>
+                                <option value="Sim">Sim</option>
+                            </select>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Trabalha exposto ao sol ou tem viagem para praia nos próximos 15 dias?</label>
+                            <select name="exposicao_solar">
+                                <option value="Não">Não</option>
+                                <option value="Sim">Sim</option>
+                            </select>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="estetica">
+                            <label>Alergia a metais (níquel), látex ou substâncias específicas?</label>
+                            <textarea name="alergias_especificas" rows="2"
+                                placeholder="Descreva se houver..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Motivo da Consulta:</label>
+                            <textarea name="geral_motivo_consulta" rows="2"
+                                placeholder="Resumo do que trouxe você até a clínica..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Histórico de Doenças Crônicas:</label>
+                            <div class="checkbox-grid">
+                                <label class="check-container"><input type="checkbox"
+                                        name="doencas_cronicas" value="Hipertensão"> Hipertensão</label>
+                                <label class="check-container"><input type="checkbox"
+                                        name="doencas_cronicas" value="Diabetes"> Diabetes</label>
+                                <label class="check-container"><input type="checkbox"
+                                        name="doencas_cronicas" value="Tireoidianas"> Problemas Tireoidianos</label>
+                                <label class="check-container"><input type="checkbox"
+                                        name="doencas_cronicas" value="Cardíacas"> Problemas Cardíacos</label>
+                                <label class="check-container"><input type="checkbox"
+                                        name="doencas_cronicas" value="Outras"> Outras</label>
+                            </div>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Medicamentos em Uso Contínuo:</label>
+                            <textarea name="medicamentos_continuos" rows="2"
+                                placeholder="Liste os remédios que utiliza regularmente..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Cirurgias Recentes (últimos 12 meses)?</label>
+                            <textarea name="cirurgias_recentes" rows="2"
+                                placeholder="Descreva se houve alguma cirurgia recente..."></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Estilo de Vida:</label>
+                            <textarea name="estilo_vida" rows="2"
+                                placeholder="Fumante? Consome bebida alcoólica? Pratica atividade física?"></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Qualidade do Sono e Intestino:</label>
+                            <textarea name="sono_intestino" rows="2"
+                                placeholder="Dorme bem? O intestino funciona regularmente?"></textarea>
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="geral">
+                            <label>Nível de Estresse (1 a 10):</label>
+                            <input type="number" name="nivel_estresse" min="1" max="10" value="5">
+                        </div>
+
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
                             <label>Envie fotos da área a ser tratada (Opcional):</label>
                             <div style="background: #fdfdfd; border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;"
                                 onclick="document.getElementById('input_fotos').click()">
@@ -857,7 +938,7 @@
                             </div>
                         </div>
 
-                        <div class="balao pergunta-bloco">
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
                             <label>Tem Alergia a algum remédio ou curativo?</label>
                             <textarea name="alergias" rows="2" placeholder="Ex: Alergia a Iodo, látex..."></textarea>
                         </div>
@@ -872,7 +953,7 @@
                             <textarea name="sintomas" rows="2" placeholder="Descreva o que sente..."></textarea>
                         </div>
 
-                        <div class="balao pergunta-bloco">
+                        <div class="balao pergunta-bloco" data-ficha="feridas">
                             <label>Informações importantes (Opcional):</label>
                             <textarea name="tratamentos_anteriores" rows="2"
                                 placeholder="Algo mais que deseja relatar?"></textarea>
@@ -884,7 +965,7 @@
                                     style="width: 18px; height: 18px;">
                                 <span style="font-size: 0.85rem;">Autorizo o tratamento dos meus dados de saúde
                                     (anamnese) para fins de consulta técnica pela Ilúmina Med conforme a <a
-                                        href="/privacidade" target="_blank">LGPD</a>.</span>
+                                        href="{{ url_for('privacidade') }}" target="_blank">LGPD</a>.</span>
                             </label>
                         </div>
 

@@ -57,11 +57,16 @@
         }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            /* Força 4 colunas */
+            display: flex;
             gap: 15px;
             margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .dashboard-grid .card-stats {
+            flex: 1 1 260px;
+            min-width: 240px;
         }
 
         .card-stats {
@@ -98,10 +103,10 @@
         }
 
         .main-grid {
-            display: grid;
-            grid-template-columns: 1.8fr 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            align-items: start;
+            align-items: stretch;
         }
 
         .scroll-section {
@@ -144,9 +149,8 @@
         }
 
         h2 {
-            color: var(--primary);
-            font-size: 1rem;
-            /* Reduzido de 1.15rem */
+            color: var(--accent);
+            font-size: 1.2rem;
             margin-top: 0;
             border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
@@ -446,55 +450,6 @@
             </div>
 
             <div class="col-span-1">
-                <div class="section-box">
-                    <h2>Gestão de Depoimentos (Avaliações)</h2>
-                    <div class="scroll-section">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>CLIENTE</th>
-                                    <th>NOTA</th>
-                                    <th>COMENTÁRIO</th>
-                                    <th>STATUS</th>
-                                    <th style="text-align: right;">AÇÕES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for a in avaliacoes_todas %}
-                                <tr>
-                                    <td><b>{{ a.nome }}</b></td>
-                                    <td style="color: #ffc107;">{{ "⭐" * a.nota }}</td>
-                                    <td><small style="color: var(--text-light);">{{ a.comentario }}</small></td>
-                                    <td>
-                                        {% if a.exibir %}
-                                        <span class="status-badge"
-                                            style="background: #e6ffed; color: var(--success);">VISÍVEL</span>
-                                        {% else %}
-                                        <span class="status-badge"
-                                            style="background: #f3f3f3; color: #999;">OCULTO</span>
-                                        {% endif %}
-                                    </td>
-                                    <td style="text-align: right;">
-                                        <a href="/toggle_avaliacao/{{ a.id }}" class="btn-action"
-                                            style="background: #eee; color: #333;">{{ 'Ocultar' if a.exibir else
-                                            'Exibir' }}</a>
-                                        <a href="/del_avaliacao/{{ a.id }}" class="btn-del"
-                                            onclick="return confirm('Apagar depoimento?')">🗑️</a>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: #ddd; padding: 20px;">Nenhum
-                                        depoimento registrado ainda.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div> <!-- Fim Depoimentos -->
-            </div> <!-- FIM COLUNA 2 -->
-
-            <div class="col-span-1">
                 <div class="section-box" style="margin-bottom: 15px;">
                     <h2>Novos Cadastros</h2>
                     <div class="scroll-section" style="max-height: 300px;">
@@ -569,13 +524,20 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div class="col-span-1">
                 <div class="section-box">
                     <h2>Serviços Ativos</h2>
+                    <div style="margin-bottom: 12px;">
+                        <input type="text" id="servico-search" placeholder="Pesquisar serviço..."
+                            style="margin:0; width: 100%; max-width: 320px;">
+                    </div>
                     <div class="scroll-section" style="max-height: 250px;">
                         <table>
+                            <tbody id="servicos-body">
                             {% for s in servicos_cadastrados %}
-                            <tr>
+                            <tr data-servico-nome="{{ s.nome|lower }}">
                                 <td style="font-size: 11px; padding: 8px;">
                                     <b style="color: var(--primary);">{{ s.nome }}</b><br>
                                     <small>{{ s.parceiro_nome }}</small>
@@ -589,12 +551,15 @@
                                 </td>
                             </tr>
                             {% endfor %}
+                            </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
 
+            <div class="col-span-1">
                 <div class="section-box" style="margin-top: 20px;">
-                    <h2>Profissionais (editar morada)</h2>
+                    <h2>Profissionais</h2>
                     <div class="scroll-section" style="max-height: 250px;">
                         <table>
                             {% for p, lucro in parceiros_info %}
@@ -625,6 +590,55 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-span-1">
+                <div class="section-box">
+                    <h2>Gestão de Depoimentos (Avaliações)</h2>
+                    <div class="scroll-section">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>CLIENTE</th>
+                                    <th>NOTA</th>
+                                    <th>COMENTÁRIO</th>
+                                    <th>STATUS</th>
+                                    <th style="text-align: right;">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in avaliacoes_todas %}
+                                <tr>
+                                    <td><b>{{ a.nome }}</b></td>
+                                    <td style="color: #ffc107;">{{ "⭐" * a.nota }}</td>
+                                    <td><small style="color: var(--text-light);">{{ a.comentario }}</small></td>
+                                    <td>
+                                        {% if a.exibir %}
+                                        <span class="status-badge"
+                                            style="background: #e6ffed; color: var(--success);">VISÍVEL</span>
+                                        {% else %}
+                                        <span class="status-badge"
+                                            style="background: #f3f3f3; color: #999;">OCULTO</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="/toggle_avaliacao/{{ a.id }}" class="btn-action"
+                                            style="background: #eee; color: #333;">{{ 'Ocultar' if a.exibir else
+                                            'Exibir' }}</a>
+                                        <a href="/del_avaliacao/{{ a.id }}" class="btn-del"
+                                            onclick="return confirm('Apagar depoimento?')">🗑️</a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #ddd; padding: 20px;">Nenhum
+                                        depoimento registrado ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- Fim Depoimentos -->
+            </div>
         </div>
     </div>
     <!-- Modal Editar Serviço (Existente) -->
@@ -632,7 +646,8 @@
         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10001; align-items:center; justify-content:center;">
         <div style="background:white; padding:30px; border-radius:12px; width:400px; position:relative;">
             <h3 style="margin-top:0; color:var(--primary);">Editar Serviço</h3>
-            <form id="formEditServico" method="post">
+            <form id="formEditServico" method="post" action="/update_servico">
+                <input type="hidden" name="id" id="edit_id">
                 <input name="nome" id="edit_nome" placeholder="Nome" required
                     style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:6px;">
                 <input type="number" step="0.01" name="valor" id="edit_valor" placeholder="Valor" required
@@ -688,7 +703,8 @@
     <script>
         function abrirEditModal(id, nome, valor, tipo) {
             document.getElementById('modalEdit').style.display = 'flex';
-            document.getElementById('formEditServico').action = '/update_servico/' + id;
+            document.getElementById('formEditServico').action = '/update_servico';
+            document.getElementById('edit_id').value = id;
             document.getElementById('edit_nome').value = nome;
             document.getElementById('edit_valor').value = valor;
             document.getElementById('edit_tipo').value = tipo;
@@ -759,6 +775,37 @@
                 // Poderia adicionar um indicador ↑↓ aqui se desejar
             });
         }
+
+        function ordenarServicosAtivos() {
+            const tbody = document.getElementById('servicos-body');
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const aNome = a.getAttribute('data-servico-nome') || '';
+                const bNome = b.getAttribute('data-servico-nome') || '';
+                return aNome.localeCompare(bNome, 'pt-BR', { sensitivity: 'base' });
+            });
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function filtrarServicosAtivos() {
+            const input = document.getElementById('servico-search');
+            const termo = (input ? input.value : '').toLowerCase().trim();
+            const tbody = document.getElementById('servicos-body');
+            if (!tbody) return;
+            tbody.querySelectorAll('tr').forEach(row => {
+                const nome = row.getAttribute('data-servico-nome') || '';
+                row.style.display = nome.includes(termo) ? '' : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ordenarServicosAtivos();
+            const input = document.getElementById('servico-search');
+            if (input) {
+                input.addEventListener('input', filtrarServicosAtivos);
+            }
+        });
     </script>
 </body>
 

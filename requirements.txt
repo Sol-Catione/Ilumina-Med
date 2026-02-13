@@ -1,6 +1,5 @@
 flask
-Flask-SQLAlchemy
-Flask-Login
+sqlalchemy
 groq
 mercadopago
 python-dotenv

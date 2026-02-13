@@ -1,0 +1,60 @@
+# JetBrains / PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+.run/
+out/
+
+# Editors
+.vscode/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+pyvenv.cfg
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.tox/
+.nox/
+.hypothesis/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Logs
+*.log
+
+# Local databases
+ilumina_med.db
+*.db
+*.sqlite3
+*.sqlite
+
+# Local-only scripts
+backup_db.py
+limpar_banco.py
+seed_db.py
