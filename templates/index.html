@@ -326,12 +326,12 @@
             overflow: visible;
         }
 
-        /* Evita empurrar as outras colunas quando o pagamento expande (desktop). */
+        /* Mantem o painel de detalhes fora do fluxo para nao empurrar as outras colunas (desktop). */
         #area_detalhes_pagamento {
             position: absolute;
             left: 12px;
             right: 12px;
-            bottom: calc(100% + 10px);
+            top: calc(100% + 10px);
             background: rgba(255, 255, 255, 0.98);
             border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 12px;
@@ -340,6 +340,11 @@
             z-index: 300;
             max-height: 70vh;
             overflow-y: auto;
+        }
+
+        /* Cria espaco de rolagem quando o painel abre para baixo. */
+        body.payment-details-open {
+            padding-bottom: 75vh;
         }
 
         /* Estilo da Busca Inteligente */
@@ -531,7 +536,7 @@
                 position: static;
                 left: auto;
                 right: auto;
-                bottom: auto;
+                top: auto;
                 background: transparent;
                 border: none;
                 border-radius: 0;
@@ -539,6 +544,10 @@
                 box-shadow: none;
                 max-height: none;
                 overflow: visible;
+            }
+
+            body.payment-details-open {
+                padding-bottom: 0;
             }
         }
 
@@ -1214,6 +1223,7 @@
             const [valor, nome] = val.split('|');
             if (valor == "0") {
                 document.getElementById('area_detalhes_pagamento').style.display = 'none';
+                document.body.classList.remove('payment-details-open');
                 return;
             }
             try {
@@ -1237,6 +1247,7 @@
                 }
 
                 document.getElementById('area_detalhes_pagamento').style.display = 'block';
+                document.body.classList.add('payment-details-open');
 
                 // Força a exibição da aba PIX por padrão se houver QR Code
                 if (data.qr_code) {
@@ -1244,6 +1255,8 @@
                 }
             } catch (error) {
                 console.error(error);
+                document.getElementById('area_detalhes_pagamento').style.display = 'none';
+                document.body.classList.remove('payment-details-open');
                 alert('Erro ao carregar dados de pagamento. Tente novamente.');
             }
         }
