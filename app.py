@@ -111,7 +111,7 @@ def inicializar():
         # SEED DE DEPOIMENTOS INICIAIS
         if db_session.query(Avaliacao).count() == 0:
             depoimentos = [
-                Avaliacao(nome="Maria Silva", nota=5, comentario="Atendimento impecável! A enfermeira Amabily é muito atenciosa e o laser ajudou muito na minha cicatrização."),
+                Avaliacao(nome="Maria Silva", nota=5, comentario="Atendimento impecável! A enfermeira é muito atenciosa e o laser ajudou muito na minha cicatrização."),
                 Avaliacao(nome="João Rocha", nota=5, comentario="Equipe muito profissional. O ambiente é acolhedor e os resultados do tratamento foram além das expectativas.")
             ]
             db_session.add_all(depoimentos)
