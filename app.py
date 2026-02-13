@@ -135,6 +135,11 @@ def index():
     return render_template('index.html', avaliacoes=avaliacoes, servicos_disponiveis=servicos_lista)
 
 
+@app.route('/privacidade')
+def privacidade():
+    return render_template('privacidade.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -790,6 +795,7 @@ def sitemap():
     # Paginas estáticas
     pages.append({"loc": url_for('index', _external=True), "changefreq": "daily", "priority": "1.0"})
     pages.append({"loc": url_for('login', _external=True), "changefreq": "monthly", "priority": "0.5"})
+    pages.append({"loc": url_for('privacidade', _external=True), "changefreq": "yearly", "priority": "0.3"})
     
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -873,6 +879,7 @@ def ver_avaliacao(token):
             .full-width {{ grid-column: span 2; }}
             .obs-box {{ background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-top: 5px; color: #444; line-height: 1.6; min-height: 40px; }}
             .status-tag {{ background: #c5a059; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }}
+Gestão de Pacientes
             .highlight-blue {{ color: #0a3342; font-weight: 700; }}
         </style>
     </head>
