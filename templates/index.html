@@ -71,7 +71,16 @@
             gap: 18px;
             padding: 20px 15px 60px 15px;
             flex: 1;
-            align-items: start;
+            align-items: stretch;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bottom-align {
+            margin-top: auto;
         }
 
         .section-title {
@@ -479,6 +488,15 @@
         @media (max-width: 1100px) {
             .main-container {
                 grid-template-columns: 1fr;
+                align-items: start;
+            }
+
+            .column {
+                display: block;
+            }
+
+            .bottom-align {
+                margin-top: 0;
             }
         }
 
@@ -585,7 +603,7 @@
                 <p>Materiais premium selecionados para cada tipo de lesão.</p>
             </div>
 
-            <div class="balao" style="margin-top: 40px; border-left: 6px solid var(--primary);">
+            <div class="balao bottom-align" style="margin-top: 40px; border-left: 6px solid var(--primary);">
                 <p style="color: var(--primary); font-weight: 600;">Processo de Cicatrização:</p>
                 <p style="font-size: 0.85rem; color: #555; line-height: 1.5; margin-bottom: 10px;">
                     A cicatrização é um processo dinâmico dividido em fases: Inflamatória (limpeza), Proliferativa
@@ -636,22 +654,24 @@
                     <li><b>Pacote 10 sessões:</b> 15% de desconto</li>
                 </ul>
             </div>
-            <h2 class="section-title">O que dizem nossos pacientes</h2>
-            <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                {% for av in avaliacoes %}
-                <div class="balao" style="padding: 15px;">
-                    <div style="color: var(--accent); margin-bottom: 5px;">
-                        {% for i in range(av.nota) %}⭐{% endfor %}
+            <div class="bottom-align">
+                <h2 class="section-title">O que dizem nossos pacientes</h2>
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                    {% for av in avaliacoes %}
+                    <div class="balao" style="padding: 15px;">
+                        <div style="color: var(--accent); margin-bottom: 5px;">
+                            {% for i in range(av.nota) %}⭐{% endfor %}
+                        </div>
+                        <p style="font-size: 0.85rem; font-style: italic; margin: 0;">"{{ av.comentario }}"</p>
+                        <small style="display: block; margin-top: 10px; font-weight: 600; color: var(--primary);">— {{
+                            av.nome }}</small>
                     </div>
-                    <p style="font-size: 0.85rem; font-style: italic; margin: 0;">"{{ av.comentario }}"</p>
-                    <small style="display: block; margin-top: 10px; font-weight: 600; color: var(--primary);">— {{
-                        av.nome }}</small>
+                    {% endfor %}
+                    {% if not avaliacoes %}
+                    <p style="font-size: 0.8rem; color: #888; text-align: center;">Aguardando as primeiras avaliações de
+                        pacientes...</p>
+                    {% endif %}
                 </div>
-                {% endfor %}
-                {% if not avaliacoes %}
-                <p style="font-size: 0.8rem; color: #888; text-align: center;">Aguardando as primeiras avaliações de
-                    pacientes...</p>
-                {% endif %}
             </div>
         </div>
 
