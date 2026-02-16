@@ -53,14 +53,18 @@ BASE_URL = os.getenv("BASE_URL", "http://localhost:5000").rstrip("/")
 # Configuracao do Banco de Dados
 # - No Render: usa Postgres (Neon) via DATABASE_URL
 # - No PC: usa SQLite local por padrao (ignora DATABASE_URL para evitar usar Neon sem querer)
+# - No PC (opcional): se USE_DATABASE_URL=true, usa DATABASE_URL (para testar local com o mesmo banco do Render/Neon)
 is_render = (os.getenv("RENDER", "").lower() == "true") or bool(os.getenv("RENDER_SERVICE_ID"))
+use_database_url = os.getenv("USE_DATABASE_URL", "").strip().lower() in ("1", "true", "yes", "y", "sim")
 
 if is_render:
     database_url = os.getenv("DATABASE_URL", "")
     if not database_url:
         raise RuntimeError("DATABASE_URL nao configurada no Render (Neon).")
 else:
-    database_url = "sqlite:///ilumina_med.db"
+    database_url = os.getenv("DATABASE_URL", "") if use_database_url else ""
+    if not database_url:
+        database_url = "sqlite:///ilumina_med.db"
 
 # Correcao para o SQLAlchemy funcionar com links antigos (postgres:// -> postgresql://)
 if database_url.startswith("postgres://"):
