@@ -50,9 +50,19 @@ ADMIN_PASS_HASH = os.getenv("ADMIN_PASS_HASH", "scrypt:32768:8:1$25xoFthW3FkRyW1
 BASE_URL = os.getenv("BASE_URL", "http://localhost:5000").rstrip("/")
 
 
-# Configuração do Banco de Dados
-database_url = os.getenv("DATABASE_URL", "sqlite:///ilumina_med.db")
-# Correção para o SQLAlchemy funcionar com links do Heroku/Render (postgres:// -> postgresql://)
+# Configuracao do Banco de Dados
+# - No Render: usa Postgres (Neon) via DATABASE_URL
+# - No PC: usa SQLite local por padrao (ignora DATABASE_URL para evitar usar Neon sem querer)
+is_render = (os.getenv("RENDER", "").lower() == "true") or bool(os.getenv("RENDER_SERVICE_ID"))
+
+if is_render:
+    database_url = os.getenv("DATABASE_URL", "")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL nao configurada no Render (Neon).")
+else:
+    database_url = "sqlite:///ilumina_med.db"
+
+# Correcao para o SQLAlchemy funcionar com links antigos (postgres:// -> postgresql://)
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
