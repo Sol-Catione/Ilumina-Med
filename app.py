@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, Response
 from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, func
