@@ -63,6 +63,24 @@ class Venda(Base):
     rotina_skincare = Column(Text)
     fotos_caminho = Column(Text)  # Caminhos separados por ponto e vírgula
 
+
+class PagamentoOnline(Base):
+    """
+    Registro de pagamento iniciado a partir do bloco "Pagamento Online" (sem pré-ficha).
+
+    Mantém os dados mínimos necessários para o Mercado Pago e auditoria interna,
+    sem depender do schema/obrigatoriedades de Venda (ex: whatsapp).
+    """
+    __tablename__ = 'pagamentos_online'
+    id = Column(Integer, primary_key=True)
+    cliente_nome = Column(String, nullable=False)
+    cpf = Column(String, nullable=True)  # armazena somente dígitos
+    email = Column(String, nullable=True)
+    servico_nome = Column(String, nullable=False)
+    valor_total = Column(Float, nullable=False)
+    status = Column(String, default="iniciado")  # iniciado, pago, cancelado, etc.
+    data_registro = Column(DateTime, default=datetime.utcnow)
+
 class Gasto(Base):
     __tablename__ = 'gastos'
     id = Column(Integer, primary_key=True)

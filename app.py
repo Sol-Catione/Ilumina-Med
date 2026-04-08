@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, func
 from sqlalchemy.orm import sessionmaker
-from core.models import Base, Parceiro, Venda, Gasto, Investimento, Servico  # Adicionado Servico
+from core.models import Base, Parceiro, Venda, Gasto, Investimento, Servico, PagamentoOnline  # Adicionado Servico
 import os
 import re
 import io
@@ -49,6 +49,15 @@ def normalize_phone_for_whatsapp(raw_phone, default_phone=None) -> str:
 def texto_tem_local_antigo(txt: str) -> bool:
     low = (txt or "").lower()
     return any(k in low for k in ("foz", "iguaçu", "iguacu", "cascavel"))
+
+
+def normalize_cpf(raw_cpf: str) -> str:
+    return re.sub(r"\D", "", str(raw_cpf or "")).strip()
+
+
+def is_valid_email(raw_email: str) -> bool:
+    email = (raw_email or "").strip()
+    return ("@" in email) and ("." in email) and (len(email) >= 5)
 
 # Importamos o novo ficheiro de pagamentos
 try:
@@ -676,6 +685,114 @@ def enviar_whatsapp(token):
     return redirect(f"https://api.whatsapp.com/send?phone={phone_number}&text={urllib.parse.quote(mensagem)}")
 
 
+@app.route('/iniciar_pagamento_online', methods=['POST'])
+def iniciar_pagamento_online():
+    """
+    Inicia um pagamento diretamente pelo bloco "Pagamento Online".
+
+    Cria um registro próprio (PagamentosOnline) com Nome/CPF/E-mail e usa esses dados no Mercado Pago.
+    """
+    db_session = Session()
+    try:
+        dados = request.get_json(silent=True) or {}
+        servico_id = dados.get("servico_id")
+        nome = (dados.get("nome") or "").strip()
+        cpf = normalize_cpf(dados.get("cpf"))
+        email = (dados.get("email") or "").strip()
+
+        if not servico_id:
+            return jsonify({"erro": "Serviço não informado"}), 400
+        if not nome:
+            return jsonify({"erro": "Nome é obrigatório"}), 400
+        if cpf and len(cpf) != 11:
+            return jsonify({"erro": "CPF inválido"}), 400
+        if email and not is_valid_email(email):
+            return jsonify({"erro": "E-mail inválido"}), 400
+
+        serv = db_session.query(Servico).get(int(servico_id))
+        if not serv:
+            return jsonify({"erro": "Serviço não encontrado"}), 404
+
+        reg = PagamentoOnline(
+            cliente_nome=nome,
+            cpf=cpf or None,
+            email=email or None,
+            servico_nome=serv.nome,
+            valor_total=float(serv.valor),
+            status="iniciado",
+        )
+        db_session.add(reg)
+        db_session.commit()
+
+        valor = float(serv.valor)
+        nome_serv = serv.nome
+
+        chave_pix_fixa = os.getenv("CHAVE_PIX_ILUMINA") or "62706476000108"
+        payload = None
+        qr_code_b64 = None
+
+        if payments:
+            try:
+                payload, qr_code_b64 = payments.gerar_pix_estatico(
+                    chave_pix_fixa,
+                    valor,
+                    nome_beneficiario="Ilumina Med",
+                    cidade="Curitiba",
+                )
+            except Exception as e:
+                print(f"Falha ao gerar PIX estático: {e}")
+                payload, qr_code_b64 = None, None
+
+        # PIX via Mercado Pago (dinâmico), usando nome/email/CPF do pagador
+        if not payload and payments and payments.get_sdk():
+            payload, qr_code_b64 = payments.gerar_pix_pagamento(
+                reg.id, valor, f"Pgto {nome_serv}", email_cliente=(email or "cliente@email.com"), nome_cliente=nome, cpf=cpf
+            )
+
+        # Link de cartão (preferência), usando nome/email/CPF do pagador
+        card_url = None
+        if payments and payments.get_sdk():
+            card_url = payments.criar_preferencia(
+                reg.id, valor, f"Serviço: {nome_serv}", email_cliente=(email or "cliente@email.com"), nome_cliente=nome, cpf=cpf
+            )
+
+        # Fallback final (QR Code Local Garantido)
+        if not payload or not qr_code_b64:
+            import qrcode
+            import base64
+            import io
+
+            valor_str = f"{valor:.2f}"
+            payload = (
+                f"00020126330014br.gov.bcb.pix0111{chave_pix_fixa}"
+                f"52040000530398654{len(valor_str):02}{valor_str}"
+                f"5802BR5911Ilumina Med6008Curitiba62070503***6304"
+            )
+            qr = qrcode.QRCode(version=1, box_size=10, border=2)
+            qr.add_data(payload)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            qr_code_b64 = f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"
+
+        parcelas = payments.calcular_parcelas(valor) if payments else [{"n": 1, "valor": valor, "total": valor}]
+
+        return jsonify({
+            "pagamento_id": reg.id,
+            "payload": payload,
+            "qr_code": qr_code_b64,
+            "card_url": card_url,
+            "parcelas": parcelas,
+        })
+
+    except Exception as e:
+        db_session.rollback()
+        return jsonify({"erro": f"Erro ao iniciar pagamento: {str(e)}"}), 500
+    finally:
+        db_session.close()
+
+
 @app.route('/gerar_dados_pagamento')
 def gerar_dados_pagamento():
     valor = float(request.args.get('valor', 0))
@@ -745,10 +862,25 @@ def tela_pagamento(token):
     if not v: return "Link inválido", 404
 
     # Gera Pix
-    codigo_pix, qr_img = payments.gerar_pix_pagamento(v.id, v.valor_total, f"Pagamento {v.servico_nome}", v.cliente_nome)
+    if not payments:
+        return "Pagamentos indisponíveis no momento.", 503
+
+    codigo_pix, qr_img = payments.gerar_pix_pagamento(
+        v.id,
+        v.valor_total,
+        f"Pagamento {v.servico_nome}",
+        email_cliente=(v.email or "cliente@email.com"),
+        nome_cliente=v.cliente_nome
+    )
     
     # Gera Link de Preferência (Cartão)
-    url_preference = payments.criar_preferencia(v.id, v.valor_total, f"Serviço {v.servico_nome}")
+    url_preference = payments.criar_preferencia(
+        v.id,
+        v.valor_total,
+        f"Serviço {v.servico_nome}",
+        email_cliente=(v.email or "cliente@email.com"),
+        nome_cliente=v.cliente_nome
+    )
     
     parcelas = payments.calcular_parcelas(v.valor_total) if payments else []
 

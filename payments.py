@@ -13,7 +13,7 @@ def get_sdk():
         return None
     return mercadopago.SDK(MP_ACCESS_TOKEN)
 
-def criar_preferencia(venda_id, valor, descricao, email_cliente="cliente@email.com"):
+def criar_preferencia(venda_id, valor, descricao, email_cliente="cliente@email.com", nome_cliente=None, cpf=None):
     """
     Cria uma preferência de pagamento no Mercado Pago e retorna o link (init_point).
     """
@@ -23,6 +23,18 @@ def criar_preferencia(venda_id, valor, descricao, email_cliente="cliente@email.c
     
     base_url = os.getenv("BASE_URL", "http://localhost:5000").rstrip("/")
     
+    payer = {"email": email_cliente} if email_cliente else {}
+    if nome_cliente:
+        parts = [p for p in str(nome_cliente).strip().split(" ") if p]
+        if parts:
+            payer["name"] = parts[0]
+            payer["surname"] = " ".join(parts[1:]) if len(parts) > 1 else "Silva"
+
+    if cpf:
+        cpf_digits = re.sub(r"\D", "", str(cpf))
+        if len(cpf_digits) == 11:
+            payer["identification"] = {"type": "CPF", "number": cpf_digits}
+
     preference_data = {
         "items": [
             {
@@ -33,9 +45,7 @@ def criar_preferencia(venda_id, valor, descricao, email_cliente="cliente@email.c
                 "unit_price": float(valor)
             }
         ],
-        "payer": {
-            "email": email_cliente
-        },
+        "payer": payer,
         "back_urls": {
             "success": f"{base_url}/confirmar_pagamento_mp",
             "failure": f"{base_url}/pagamento_falhou",
@@ -52,7 +62,7 @@ def criar_preferencia(venda_id, valor, descricao, email_cliente="cliente@email.c
     except:
         return None
 
-def gerar_pix_pagamento(venda_id, valor, descricao, email_cliente="cliente@email.com", nome_cliente="Cliente"):
+def gerar_pix_pagamento(venda_id, valor, descricao, email_cliente="cliente@email.com", nome_cliente="Cliente", cpf=None):
     """
     Gera um pagamento via PIX usando a API do Mercado Pago.
     Retorna (qr_code_copia_e_cola, qr_code_base64_image).
@@ -62,15 +72,21 @@ def gerar_pix_pagamento(venda_id, valor, descricao, email_cliente="cliente@email
     if not sdk:
         return _gerar_pix_mock(valor)
         
+    payer = {
+        "email": email_cliente,
+        "first_name": nome_cliente.split(" ")[0],
+        "last_name": " ".join(nome_cliente.split(" ")[1:]) if " " in nome_cliente else "Silva"
+    }
+    if cpf:
+        cpf_digits = re.sub(r"\D", "", str(cpf))
+        if len(cpf_digits) == 11:
+            payer["identification"] = {"type": "CPF", "number": cpf_digits}
+
     payment_data = {
         "transaction_amount": float(valor),
         "description": descricao,
         "payment_method_id": "pix",
-        "payer": {
-            "email": email_cliente,
-            "first_name": nome_cliente.split(" ")[0],
-            "last_name": " ".join(nome_cliente.split(" ")[1:]) if " " in nome_cliente else "Silva"
-        },
+        "payer": payer,
         "external_reference": str(venda_id)
     }
 

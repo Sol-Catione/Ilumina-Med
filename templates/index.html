@@ -785,11 +785,21 @@
                 <div class="bottom-align">
                     <div class="balao online-payment-box" id="caixa-pagamento-estavel">
                         <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0 0 10px 0;">💳 Pagamento Online</h3>
+                        <label>Dados para pagamento (Mercado Pago):</label>
+                        <input type="text" id="pagamento_nome" placeholder="Nome completo"
+                            style="width:100%; padding:10px; font-size:0.85rem; margin:6px 0 8px 0; box-sizing:border-box;">
+                        <input type="text" id="pagamento_cpf" placeholder="CPF (somente números)"
+                            style="width:100%; padding:10px; font-size:0.85rem; margin:0 0 8px 0; box-sizing:border-box;">
+                        <input type="email" id="pagamento_email" placeholder="E-mail"
+                            style="width:100%; padding:10px; font-size:0.85rem; margin:0 0 10px 0; box-sizing:border-box;">
+                        <div id="pagamento_online_msg"
+                            style="display:none; font-size:0.78rem; color:#b42318; background:#fff5f5; border:1px solid #fecaca; padding:8px; border-radius:10px; margin-bottom:10px;"></div>
+
                         <label>Pagar agora (Selecione o serviço):</label>
                         <select id="pagamento_online_select" onchange="atualizarPagamento()">
-                            <option value="0|0">Escolha o serviço...</option>
+                            <option value="0">Escolha o serviço...</option>
                             {% for s in servicos_disponiveis %}
-                            <option value="{{ s.valor }}|{{ s.nome }}">{{ s.nome }} - R$ {{ "{:.2f}".format(s.valor) }}</option>
+                            <option value="{{ s.id }}">{{ s.nome }} - R$ {{ "{:.2f}".format(s.valor) }}</option>
                             {% endfor %}
                         </select>
 
@@ -1246,17 +1256,51 @@
         let pixCopiaECola = "";
         let linkCartaoAtual = "";
         async function atualizarPagamento() {
-            const val = document.getElementById('pagamento_online_select').value;
-            const [valor, nome] = val.split('|');
-            if (valor == "0") {
+            const msg = document.getElementById('pagamento_online_msg');
+            if (msg) {
+                msg.style.display = 'none';
+                msg.textContent = '';
+            }
+
+            const servicoId = parseInt(document.getElementById('pagamento_online_select').value || "0", 10);
+            if (!servicoId) {
                 document.getElementById('area_detalhes_pagamento').style.display = 'none';
                 document.body.classList.remove('payment-details-open');
                 syncFixedLayoutOffsets();
                 return;
             }
+
+            const pagNome = (document.getElementById('pagamento_nome').value || '').trim();
+            const pagCpf = (document.getElementById('pagamento_cpf').value || '').trim();
+            const pagEmail = (document.getElementById('pagamento_email').value || '').trim();
+
+            if (!pagNome || !pagCpf || !pagEmail) {
+                document.getElementById('area_detalhes_pagamento').style.display = 'none';
+                document.body.classList.remove('payment-details-open');
+                syncFixedLayoutOffsets();
+                if (msg) {
+                    msg.textContent = 'Para gerar o pagamento, preencha Nome, CPF e E-mail.';
+                    msg.style.display = 'block';
+                } else {
+                    alert('Para gerar o pagamento, preencha Nome, CPF e E-mail.');
+                }
+                return;
+            }
             try {
-                const response = await fetch(`/gerar_dados_pagamento?valor=${valor}&nome=${encodeURIComponent(nome)}`);
+                const response = await fetch('/iniciar_pagamento_online', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        servico_id: servicoId,
+                        nome: pagNome,
+                        cpf: pagCpf,
+                        email: pagEmail
+                    })
+                });
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.erro || 'Erro ao iniciar pagamento');
+                }
 
                 // Atualiza PIX
                 if (data.qr_code) {
@@ -1287,7 +1331,7 @@
                 document.getElementById('area_detalhes_pagamento').style.display = 'none';
                 document.body.classList.remove('payment-details-open');
                 syncFixedLayoutOffsets();
-                alert('Erro ao carregar dados de pagamento. Tente novamente.');
+                alert('Erro ao carregar dados de pagamento: ' + (error && error.message ? error.message : 'Tente novamente.'));
             }
         }
 
