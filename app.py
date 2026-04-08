@@ -705,7 +705,7 @@ def iniciar_pagamento_online():
         if not nome:
             return jsonify({"erro": "Nome é obrigatório"}), 400
         if cpf and len(cpf) != 11:
-            return jsonify({"erro": "CPF inválido"}), 400
+            return jsonify({"erro": "CPF inválido: precisa ter 11 dígitos"}), 400
         if email and not is_valid_email(email):
             return jsonify({"erro": "E-mail inválido"}), 400
 

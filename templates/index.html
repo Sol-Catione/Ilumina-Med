@@ -788,7 +788,7 @@
                         <label>Dados para pagamento (Mercado Pago):</label>
                         <input type="text" id="pagamento_nome" placeholder="Nome completo"
                             style="width:100%; padding:10px; font-size:0.85rem; margin:6px 0 8px 0; box-sizing:border-box;">
-                        <input type="text" id="pagamento_cpf" placeholder="CPF (somente números)"
+                        <input type="text" id="pagamento_cpf" placeholder="CPF (11 dígitos)"
                             style="width:100%; padding:10px; font-size:0.85rem; margin:0 0 8px 0; box-sizing:border-box;">
                         <input type="email" id="pagamento_email" placeholder="E-mail"
                             style="width:100%; padding:10px; font-size:0.85rem; margin:0 0 10px 0; box-sizing:border-box;">
@@ -1255,6 +1255,10 @@
 
         let pixCopiaECola = "";
         let linkCartaoAtual = "";
+        function onlyDigits(s) {
+            return String(s || '').replace(/\D/g, '');
+        }
+
         async function atualizarPagamento() {
             const msg = document.getElementById('pagamento_online_msg');
             if (msg) {
@@ -1271,10 +1275,11 @@
             }
 
             const pagNome = (document.getElementById('pagamento_nome').value || '').trim();
-            const pagCpf = (document.getElementById('pagamento_cpf').value || '').trim();
+            const pagCpfRaw = (document.getElementById('pagamento_cpf').value || '').trim();
             const pagEmail = (document.getElementById('pagamento_email').value || '').trim();
+            const pagCpf = onlyDigits(pagCpfRaw);
 
-            if (!pagNome || !pagCpf || !pagEmail) {
+            if (!pagNome || !pagCpfRaw || !pagEmail) {
                 document.getElementById('area_detalhes_pagamento').style.display = 'none';
                 document.body.classList.remove('payment-details-open');
                 syncFixedLayoutOffsets();
@@ -1283,6 +1288,19 @@
                     msg.style.display = 'block';
                 } else {
                     alert('Para gerar o pagamento, preencha Nome, CPF e E-mail.');
+                }
+                return;
+            }
+
+            if (pagCpf.length !== 11) {
+                document.getElementById('area_detalhes_pagamento').style.display = 'none';
+                document.body.classList.remove('payment-details-open');
+                syncFixedLayoutOffsets();
+                if (msg) {
+                    msg.textContent = 'CPF inválido: precisa ter 11 dígitos.';
+                    msg.style.display = 'block';
+                } else {
+                    alert('CPF inválido: precisa ter 11 dígitos.');
                 }
                 return;
             }
