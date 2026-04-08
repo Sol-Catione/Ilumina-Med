@@ -24,6 +24,32 @@ import json
 env_path = os.path.join(os.path.dirname(__file__), '.env')
 dotenv.load_dotenv(env_path)
 
+# Defaults do projeto (sede atual).
+DEFAULT_WHATSAPP_ILUMINA = os.getenv("WHATSAPP_ILUMINA", "554588244623")  # Somente dígitos (DDI+DDD+Número)
+SEDE_ENDERECO = os.getenv("SEDE_ENDERECO", "").strip()  # Endereço completo (privado): configure no ambiente
+SEDE_MODO_ATENDIMENTO = (os.getenv("SEDE_MODO_ATENDIMENTO", "Ambos") or "Ambos").strip()
+ENDERECO_PUBLICO = "Curitiba - Paraná"
+
+
+def normalize_phone_for_whatsapp(raw_phone, default_phone=None) -> str:
+    """
+    Normaliza para o formato aceito pelo WhatsApp (somente dígitos).
+
+    Não tenta adivinhar/alterar DDD ou inserir dígitos: apenas remove símbolos.
+    """
+    if default_phone is None:
+        default_phone = DEFAULT_WHATSAPP_ILUMINA
+
+    digits = re.sub(r"\D", "", str(raw_phone or "")).strip()
+    if digits:
+        return digits
+    return re.sub(r"\D", "", str(default_phone or "")).strip()
+
+
+def texto_tem_local_antigo(txt: str) -> bool:
+    low = (txt or "").lower()
+    return any(k in low for k in ("foz", "iguaçu", "iguacu", "cascavel"))
+
 # Importamos o novo ficheiro de pagamentos
 try:
     import payments
@@ -92,12 +118,30 @@ def inicializar():
 
         if not p:
             # Criamos o parceiro mestre já com a flag eh_interno=True
-            p = Parceiro(nome_fantasia="Ilúmina Med", whatsapp_professional="554588244623", eh_interno=True)
+            p = Parceiro(
+                nome_fantasia="Ilúmina Med",
+                whatsapp_professional=normalize_phone_for_whatsapp(DEFAULT_WHATSAPP_ILUMINA),
+                eh_interno=True,
+                endereco=SEDE_ENDERECO,
+                modo_atendimento=SEDE_MODO_ATENDIMENTO
+            )
             db_session.add(p)
             db_session.commit()
         else:
             p.nome_fantasia = "Ilúmina Med"
             p.eh_interno = True  # Garante que a conta mestre seja sempre interna
+            p.whatsapp_professional = normalize_phone_for_whatsapp(p.whatsapp_professional, DEFAULT_WHATSAPP_ILUMINA)
+            # Mantém o endereço sempre atualizado para a sede atual.
+            if SEDE_ENDERECO:
+                if not (p.endereco or "").strip() or texto_tem_local_antigo(p.endereco):
+                    p.endereco = SEDE_ENDERECO
+            else:
+                # Se a sede não foi configurada no ambiente, ao menos evita manter endereço antigo.
+                if texto_tem_local_antigo(p.endereco):
+                    p.endereco = ""
+            # Sede atende em casa (endereço) e também em domicílio.
+            if (p.modo_atendimento or "").strip().lower() in ("", "domiciliar"):
+                p.modo_atendimento = SEDE_MODO_ATENDIMENTO
             db_session.commit()
 
         # RESTAURANDO SERVIÇOS PADRÃO DA ILÚMINA MED (ID 1)
@@ -145,6 +189,11 @@ def index():
     avaliacoes = db_session.query(Avaliacao).filter_by(exibir=True).all()
     # Buscamos todos os serviços para o autocomplete do site, ordenados por nome
     servicos_lista = db_session.query(Servico).order_by(Servico.nome.asc()).all()
+    # Evita expor serviços/profissionais que ainda estejam cadastrados em outra cidade.
+    servicos_lista = [
+        s for s in servicos_lista
+        if not (s.parceiro and texto_tem_local_antigo(s.parceiro.endereco))
+    ]
     db_session.close()
     return render_template('index.html', avaliacoes=avaliacoes, servicos_disponiveis=servicos_lista)
 
@@ -349,7 +398,7 @@ def update_parceiro(p_id):
     p = db_session.query(Parceiro).get(p_id)
     if p:
         p.nome_fantasia = request.form.get('nome')
-        p.whatsapp_professional = request.form.get('zap')
+        p.whatsapp_professional = normalize_phone_for_whatsapp(request.form.get('zap'), DEFAULT_WHATSAPP_ILUMINA)
         p.eh_interno = True if request.form.get('eh_interno') == 'true' else False
         p.modo_atendimento = request.form.get('modo')
         p.endereco = request.form.get('endereco', '')
@@ -445,6 +494,14 @@ def listar_servicos_json():
     servicos = db_session.query(Servico).order_by(Servico.nome.asc()).all()
     lista = []
     for s in servicos:
+        if s.parceiro and texto_tem_local_antigo(s.parceiro.endereco):
+            continue
+
+        if s.parceiro and s.parceiro.id == 1:
+            endereco_publico = ENDERECO_PUBLICO
+        else:
+            endereco_publico = s.parceiro.endereco if (s.parceiro and s.parceiro.endereco) else "A combinar"
+
         lista.append({
             "id": s.id,
             "nome": s.nome,
@@ -452,7 +509,7 @@ def listar_servicos_json():
             "tipo_ficha": s.tipo_ficha or "feridas",
             "profissional": s.parceiro.nome_fantasia if s.parceiro else "Ilúmina Med",
             "modo": s.parceiro.modo_atendimento if s.parceiro else "Consultório",
-            "endereco": s.parceiro.endereco if (s.parceiro and s.parceiro.endereco) else "A combinar",
+            "endereco": endereco_publico,
             "parceiro_id": s.parceiro_id or 1
         })
     db_session.close()
@@ -582,7 +639,11 @@ def finalizar_agendamento():
             f"{link_ficha}"
         )
 
-        link_zap = f"https://api.whatsapp.com/send?phone={v.parceiro.whatsapp_professional or '554588244623'}&text={urllib.parse.quote(mensagem)}"
+        phone_destino = normalize_phone_for_whatsapp(
+            v.parceiro.whatsapp_professional if (v.parceiro and v.parceiro.whatsapp_professional) else None,
+            DEFAULT_WHATSAPP_ILUMINA
+        )
+        link_zap = f"https://api.whatsapp.com/send?phone={phone_destino}&text={urllib.parse.quote(mensagem)}"
 
         return jsonify({
             "status": "sucesso",
@@ -603,7 +664,10 @@ def enviar_whatsapp(token):
     if not v: return "Erro", 404
     
     # Busca whatsapp do parceiro dono do serviço
-    phone_number = v.parceiro.whatsapp_professional if (v.parceiro and v.parceiro.whatsapp_professional) else '554588244623'
+    phone_number = normalize_phone_for_whatsapp(
+        v.parceiro.whatsapp_professional if (v.parceiro and v.parceiro.whatsapp_professional) else None,
+        DEFAULT_WHATSAPP_ILUMINA
+    )
     
     link_pagamento = f"{BASE_URL}/pagamento/{v.token_acesso}"
     mensagem = f"Olá {v.parceiro.nome_fantasia if v.parceiro else 'Ilúmina'}! Sou {v.cliente_nome}, preenchi a ficha e quero agendar meu procedimento. Link Pagamento: {link_pagamento}"
@@ -651,7 +715,7 @@ def gerar_dados_pagamento():
         import base64
         import io
         valor_str = f"{valor:.2f}"
-        payload = f"00020126330014br.gov.bcb.pix0111{chave_pix_fixa}52040000530398654{len(valor_str):02}{valor_str}5802BR5911Ilumina Med6007Cascavel62070503***6304"
+        payload = f"00020126330014br.gov.bcb.pix0111{chave_pix_fixa}52040000530398654{len(valor_str):02}{valor_str}5802BR5911Ilumina Med6008Curitiba62070503***6304"
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
         qr.add_data(payload)
         qr.make(fit=True)
@@ -1038,7 +1102,12 @@ def avaliar_atendimento(token):
     return render_template('avaliar.html', venda=venda)
 
 
+# Inicializa dados padrão também quando o app é carregado via Gunicorn/Render.
+# (Pode ser desativado para tarefas específicas definindo SKIP_INIT=true).
+if os.getenv("SKIP_INIT", "").strip().lower() not in ("1", "true", "yes", "y", "sim"):
+    inicializar()
+
+
 if __name__ == '__main__':
 
-    inicializar()
     app.run(debug=True)

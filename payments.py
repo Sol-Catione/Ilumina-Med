@@ -89,7 +89,7 @@ def gerar_pix_pagamento(venda_id, valor, descricao, email_cliente="cliente@email
 
 def _gerar_pix_mock(valor):
     # Fallback caso não tenha credenciais (mantém o comportamento anterior)
-    payload = f"00020126580014br.gov.bcb.pix0136RANDOMKEY520400005303986540{valor:.2f}5802BR5911Ilumina6007Cascavel62070503***6304"
+    payload = f"00020126580014br.gov.bcb.pix0136RANDOMKEY520400005303986540{valor:.2f}5802BR5911Ilumina6008Curitiba62070503***6304"
     return payload, gerar_qr_code_base64_lib(payload)
 
 def gerar_qr_code_base64_lib(payload_pix):
@@ -118,7 +118,7 @@ def calcular_crc16(payload):
         crc &= 0xFFFF
     return f"{crc:04X}"
 
-def gerar_pix_estatico(chave_pix, valor, nome_beneficiario="Ilumina Med", cidade="Cascavel", txid="***"):
+def gerar_pix_estatico(chave_pix, valor, nome_beneficiario="Ilumina Med", cidade="Curitiba", txid="***"):
     """
     Gera um Payload Pix Estático (QRCPS) válido.
     """
